@@ -1,0 +1,2378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Proyecto 87 → 73 · Programa de recomposición</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --iron:#15181C;
+  --steel:#1E232A;
+  --steel-2:#272D36;
+  --line:#333B45;
+  --chalk:#E9E6E0;
+  --smoke:#8D959E;
+  --p-red:#D8232A;
+  --p-blue:#2168C4;
+  --p-yellow:#F2C438;
+  --p-green:#34A05C;
+  --p-white:#E9E6E0;
+  --radius:4px;
+  --pad:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--iron);
+  color:var(--chalk);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-size:15px;line-height:1.55;
+  padding-bottom:88px;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:"Oswald","Arial Narrow",Impact,sans-serif;font-weight:600;letter-spacing:.02em;margin:0;text-transform:uppercase}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
+a{color:var(--p-yellow)}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--p-yellow);outline-offset:2px}
+
+/* ---------- header ---------- */
+header.top{
+  position:sticky;top:0;z-index:40;
+  background:linear-gradient(180deg,#12151A 0%,#12151AF2 100%);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+  padding:12px var(--pad) 10px;
+}
+.brandline{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.brand{font-family:"Oswald",sans-serif;font-size:19px;font-weight:700;letter-spacing:.06em}
+.brand em{font-style:normal;color:var(--p-yellow)}
+.datechip{font-size:11px;letter-spacing:.12em;color:var(--smoke);text-transform:uppercase}
+.railwrap{margin-top:10px}
+.rail{height:6px;background:var(--steel-2);border-radius:99px;overflow:hidden;position:relative}
+.rail i{display:block;height:100%;background:linear-gradient(90deg,var(--p-blue),var(--p-yellow));border-radius:99px;transition:width .6s ease}
+.railmeta{display:flex;justify-content:space-between;font-size:10.5px;letter-spacing:.08em;color:var(--smoke);margin-top:5px;text-transform:uppercase}
+
+/* ---------- layout ---------- */
+main{padding:0 var(--pad)}
+section.tabpane{display:none;padding-top:18px}
+section.tabpane.on{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.eyebrow{font-size:10.5px;letter-spacing:.18em;color:var(--smoke);text-transform:uppercase;font-family:"IBM Plex Mono",monospace}
+.h-lg{font-size:26px;line-height:1.1;margin:4px 0 2px}
+.h-md{font-size:18px;margin:0 0 8px}
+.sub{color:var(--smoke);font-size:13.5px}
+
+.card{background:var(--steel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin:14px 0}
+.card.flat{background:transparent;border-style:dashed}
+.card-hd{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.card-hd h3{font-size:15px}
+.tag{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.1em;padding:3px 7px;border-radius:2px;text-transform:uppercase;font-weight:600;white-space:nowrap}
+.tag.red{background:var(--p-red);color:#fff}
+.tag.blue{background:var(--p-blue);color:#fff}
+.tag.yellow{background:var(--p-yellow);color:#15181C}
+.tag.green{background:var(--p-green);color:#fff}
+.tag.ghost{background:transparent;border:1px solid var(--line);color:var(--smoke)}
+
+/* ---------- signature: barra de recuperación ---------- */
+.barbell{margin:6px 0 4px;width:100%;height:96px;display:block}
+.scoreblock{display:flex;align-items:flex-end;gap:12px;margin-top:2px}
+.scorenum{font-family:"Oswald",sans-serif;font-size:52px;line-height:.85;font-weight:700}
+.scorelbl{font-size:11px;letter-spacing:.14em;color:var(--smoke);text-transform:uppercase;padding-bottom:6px}
+
+/* ---------- forms ---------- */
+.q{margin:14px 0 0}
+.q label{display:block;font-size:13.5px;font-weight:600;margin-bottom:2px}
+.q .hint{font-size:11.5px;color:var(--smoke);margin-bottom:7px}
+.slider-row{display:flex;align-items:center;gap:12px}
+input[type=range]{flex:1;-webkit-appearance:none;appearance:none;height:3px;background:var(--line);border-radius:99px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--p-yellow);border:3px solid var(--iron);box-shadow:0 0 0 1px var(--p-yellow);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--p-yellow);border:3px solid var(--iron);cursor:pointer}
+.val{font-family:"IBM Plex Mono",monospace;font-size:16px;font-weight:600;min-width:34px;text-align:right}
+input[type=number],input[type=text],input[type=date],textarea,select{
+  width:100%;background:var(--steel-2);border:1px solid var(--line);color:var(--chalk);
+  border-radius:var(--radius);padding:10px 11px;font-family:"IBM Plex Mono",monospace;font-size:15px}
+textarea{font-family:"IBM Plex Sans",sans-serif;min-height:64px;resize:vertical}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:13px;border:none;border-radius:var(--radius);
+  background:var(--p-yellow);color:#15181C;font-weight:700;font-size:14px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;font-family:"Oswald",sans-serif}
+.btn:active{transform:translateY(1px)}
+.btn.sec{background:transparent;border:1px solid var(--line);color:var(--chalk)}
+.btn.danger{background:transparent;border:1px solid var(--p-red);color:var(--p-red)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+
+/* ---------- verdict ---------- */
+.verdict{border-left:4px solid var(--p-yellow);background:var(--steel-2);padding:13px 14px;border-radius:0 var(--radius) var(--radius) 0;margin-top:14px}
+.verdict h4{font-size:15px;margin-bottom:4px}
+.verdict p{margin:0;font-size:13.5px;color:#CFD4D9}
+.verdict ul{margin:8px 0 0;padding-left:18px;font-size:13px;color:#CFD4D9}
+
+/* ---------- exercise list ---------- */
+.exlist{list-style:none;margin:0;padding:0;counter-reset:ex}
+.ex{border-top:1px solid var(--line);padding:13px 0}
+.ex:last-child{border-bottom:1px solid var(--line)}
+.ex-top{display:flex;gap:10px;align-items:flex-start}
+.ex-n{counter-increment:ex;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--p-yellow);padding-top:3px;min-width:22px}
+.ex-n::before{content:counter(ex,decimal-leading-zero)}
+.ex-body{flex:1;min-width:0}
+.ex-name{font-weight:600;font-size:14.5px;line-height:1.3}
+.ex-prescr{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--p-yellow);margin-top:3px;letter-spacing:.02em}
+.ex-cue{font-size:12.5px;color:var(--smoke);margin-top:5px;line-height:1.45}
+.ex-cue b{color:#C3CAD1;font-weight:600}
+.ex-link{display:inline-block;margin-top:7px;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;font-family:"IBM Plex Mono",monospace;text-decoration:none;border-bottom:1px solid var(--p-yellow);padding-bottom:1px}
+.warnex{border-left:3px solid var(--p-red);padding-left:10px;margin-top:7px;font-size:12px;color:#E4B6B8}
+
+/* ---------- meals ---------- */
+.meal{border-top:1px solid var(--line);padding:14px 0}
+.meal:last-child{border-bottom:1px solid var(--line)}
+.meal-hd{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.meal-time{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--p-yellow)}
+.meal-name{font-family:"Oswald",sans-serif;font-size:14px;text-transform:uppercase;letter-spacing:.04em}
+.meal-kcal{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--smoke);white-space:nowrap}
+.meal ul{margin:8px 0 0;padding-left:17px;font-size:13.5px}
+.meal li{margin-bottom:3px}
+.meal .howto{margin-top:8px;font-size:12.5px;color:var(--smoke);border-left:2px solid var(--line);padding-left:9px}
+
+/* ---------- macro strip ---------- */
+.macros{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin:12px 0}
+.macro{background:var(--steel);padding:10px 6px;text-align:center}
+.macro .m-v{font-family:"Oswald",sans-serif;font-size:20px;font-weight:600;line-height:1}
+.macro .m-l{font-size:9.5px;letter-spacing:.1em;color:var(--smoke);text-transform:uppercase;margin-top:4px;font-family:"IBM Plex Mono",monospace}
+
+/* ---------- table ---------- */
+table{width:100%;border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:12px}
+th{text-align:left;color:var(--smoke);font-weight:500;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:8px 6px;border-bottom:1px solid var(--line)}
+td{padding:9px 6px;border-bottom:1px solid #23282F}
+tr:last-child td{border-bottom:none}
+
+/* ---------- chart ---------- */
+.chartbox{background:var(--steel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 10px 8px;margin:14px 0}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--smoke);margin-top:8px;padding:0 4px;font-family:"IBM Plex Mono",monospace}
+.legend i{display:inline-block;width:14px;height:2px;vertical-align:middle;margin-right:5px}
+
+/* ---------- week strip ---------- */
+.weekstrip{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:12px 0}
+.wd{background:var(--steel);border:1px solid var(--line);border-radius:2px;padding:8px 2px;text-align:center;cursor:pointer}
+.wd.sel{border-color:var(--p-yellow);background:var(--steel-2)}
+.wd .d{font-size:9.5px;letter-spacing:.06em;color:var(--smoke);font-family:"IBM Plex Mono",monospace}
+.wd .m{width:9px;height:9px;border-radius:50%;margin:5px auto 0}
+
+/* ---------- nav ---------- */
+nav.bottom{position:fixed;bottom:0;left:0;right:0;z-index:50;display:grid;grid-template-columns:repeat(5,1fr);
+  background:#12151AF7;backdrop-filter:blur(10px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav.bottom button{background:none;border:none;color:var(--smoke);padding:11px 2px 10px;font-family:"Oswald",sans-serif;
+  font-size:11px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-top:2px solid transparent;margin-top:-1px}
+nav.bottom button.on{color:var(--p-yellow);border-top-color:var(--p-yellow)}
+
+/* ---------- opciones intercambiables ---------- */
+.optbar{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.opt{background:var(--steel-2);border:1px solid var(--line);color:var(--smoke);border-radius:99px;
+  padding:6px 12px;font-size:11.5px;font-family:"IBM Plex Mono",monospace;cursor:pointer;letter-spacing:.03em}
+.opt.on{border-color:var(--p-yellow);color:var(--p-yellow);background:#2A2A1E}
+.swapnote{margin-top:9px;font-size:12px;color:var(--smoke);border-left:2px solid var(--p-yellow);padding-left:9px}
+.exdet{margin-top:9px;border-top:1px dashed var(--line);padding-top:8px}
+.exdet summary{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--smoke);cursor:pointer;list-style:none;padding:3px 0}
+.exdet summary::-webkit-details-marker{display:none}
+.exdet summary::before{content:'+ ';color:var(--p-yellow)}
+.exdet[open] summary::before{content:'− '}
+.exdet[open] summary{color:var(--p-yellow)}
+.exdet .why{font-size:12.5px;color:#C3CAD1;margin:6px 0 0;line-height:1.5}
+.exdet ul.subs{margin:6px 0 0;padding-left:16px;font-size:12.5px;color:#C3CAD1}
+.exdet ul.subs li{margin-bottom:5px}
+.exdet ul.subs b{color:var(--chalk)}
+.syncgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:10px}
+.syncgrid .q{margin:0}
+/* ---------- foto del plato ---------- */
+.shoot{border:1.5px dashed var(--line);border-radius:var(--radius);padding:26px 16px;text-align:center;background:var(--steel);cursor:pointer;display:block}
+.shoot:active{border-color:var(--p-yellow)}
+.shoot .big{font-family:"Oswald",sans-serif;font-size:15px;text-transform:uppercase;letter-spacing:.05em}
+.shoot .sm{font-size:12px;color:var(--smoke);margin-top:5px}
+.shoot input{display:none}
+.preview{width:100%;border-radius:var(--radius);border:1px solid var(--line);display:block;margin-top:12px}
+.bars{margin-top:6px}
+.barrow{margin:11px 0}
+.barhd{display:flex;justify-content:space-between;font-family:"IBM Plex Mono",monospace;font-size:11.5px;margin-bottom:4px}
+.barhd .lb{color:var(--smoke);letter-spacing:.06em;text-transform:uppercase}
+.bartrack{height:8px;background:var(--steel-2);border-radius:99px;overflow:hidden;position:relative}
+.bartrack i{display:block;height:100%;border-radius:99px;transition:width .5s ease}
+.bartrack .over{position:absolute;top:0;right:0;height:100%;background:repeating-linear-gradient(45deg,#D8232A,#D8232A 3px,#8E181D 3px,#8E181D 6px)}
+.spin{display:inline-block;width:15px;height:15px;border:2px solid #ffffff44;border-top-color:#15181C;border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.handgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.hand{background:var(--steel-2);border:1px solid var(--line);border-radius:var(--radius);padding:12px}
+.hand .icon{font-size:26px;line-height:1}
+.hand .t{font-family:"Oswald",sans-serif;font-size:13px;text-transform:uppercase;margin-top:6px;letter-spacing:.03em}
+.hand .d{font-size:11.5px;color:var(--smoke);margin-top:4px;line-height:1.45}
+.hand .n{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--p-yellow);margin-top:6px}
+.counter{display:flex;align-items:center;gap:8px;justify-content:space-between;margin-top:4px}
+.counter .step{width:34px;height:34px;border-radius:var(--radius);border:1px solid var(--line);background:var(--steel-2);color:var(--chalk);font-size:18px;cursor:pointer}
+.counter .num{font-family:"Oswald",sans-serif;font-size:22px;min-width:26px;text-align:center}
+.foodline{font-size:13px;color:#C3CAD1;margin:2px 0}
+.galgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.galitem{position:relative;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--steel-2)}
+.galitem img{width:100%;display:block;aspect-ratio:1;object-fit:cover}
+.galitem .cap{padding:7px 8px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--smoke);line-height:1.35}
+.galitem .cap b{color:var(--p-yellow);font-weight:600}
+.galitem .del{position:absolute;top:5px;right:5px;background:#15181CD9;border:1px solid var(--line);color:var(--chalk);
+  width:26px;height:26px;border-radius:var(--radius);font-size:14px;cursor:pointer;line-height:1}
+.conf{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+.note{font-size:12px;color:var(--smoke);line-height:1.5}
+.divider{height:1px;background:var(--line);margin:22px 0}
+details{border:1px solid var(--line);border-radius:var(--radius);padding:11px 13px;margin:10px 0;background:var(--steel)}
+details summary{cursor:pointer;font-family:"Oswald",sans-serif;font-size:13.5px;text-transform:uppercase;letter-spacing:.04em}
+details[open] summary{margin-bottom:9px;color:var(--p-yellow)}
+details p,details ul{font-size:13px;color:#C3CAD1;margin:6px 0}
+details ul{padding-left:17px}
+.toast{position:fixed;bottom:78px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--p-green);color:#fff;
+  padding:10px 18px;border-radius:99px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:.3s;z-index:60}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brandline">
+    <div class="brand">PROYECTO <em>87→73</em></div>
+    <div class="datechip mono" id="hdrDate">—</div>
+  </div>
+  <div class="railwrap">
+    <div class="rail"><i id="railFill" style="width:0%"></i></div>
+    <div class="railmeta">
+      <span id="railLeft">Semana 1 de 17</span>
+      <span id="railRight" class="mono">87,0 kg</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ============== HOY ============== -->
+<section class="tabpane on" id="pane-hoy">
+  <div class="verdict" id="storageWarn" style="display:none;border-left-color:var(--p-red);margin-bottom:16px">
+    <h4>Este entorno no guarda nada al cerrar</h4>
+    <p>Todo lo que apuntes se perderá al salir. No es un fallo de la app: la ventana en la que se está abriendo bloquea la memoria del navegador y no puedo cambiarlo desde dentro.</p>
+    <p style="margin-top:8px"><b style="color:var(--chalk)">Cómo trabajar igualmente sin perder nada:</b> al terminar el día pulsa Descargar copia, y mañana al abrir pulsa Cargar copia. Son dos toques y tu historial continúa intacto.</p>
+    <div class="grid2" style="margin-top:12px">
+      <button class="btn" id="btnDownTop">Descargar copia</button>
+      <label class="btn sec" for="fileInTop" style="margin:0">Cargar copia
+        <input type="file" accept=".json,application/json" id="fileInTop" style="display:none">
+      </label>
+    </div>
+  </div>
+
+  <div class="verdict" id="restoreHint" style="display:none;border-left-color:var(--p-yellow);margin-bottom:16px">
+    <h4>Empiezas con el historial vacío</h4>
+    <p>No hay días guardados en esta sesión. Si tienes un archivo de copia, cárgalo y recuperas todo: días, pesos y fotos.</p>
+    <label class="btn sec" for="fileInTop2" style="margin-top:12px">Cargar mi copia
+      <input type="file" accept=".json,application/json" id="fileInTop2" style="display:none">
+    </label>
+  </div>
+  <div class="eyebrow">Sesión del día</div>
+  <h1 class="h-lg" id="todayTitle">—</h1>
+  <p class="sub" id="todaySub">—</p>
+
+  <!-- FIRMA: barra de recuperación -->
+  <div class="card">
+    <div class="card-hd"><h3>1 · Chequeo de recuperación</h3></div>
+    <p class="note">Contesta antes de salir de casa. La barra se carga con discos según tu estado: eso decide cuánto peso mereces hoy.</p>
+
+    <svg class="barbell" viewBox="0 0 360 96" aria-label="Barra cargada según tu recuperación" role="img">
+      <rect x="10" y="45" width="340" height="6" rx="3" fill="#5A626B"/>
+      <rect x="72" y="38" width="7" height="20" rx="2" fill="#7A828B"/>
+      <rect x="281" y="38" width="7" height="20" rx="2" fill="#7A828B"/>
+      <g id="plates"></g>
+      <text id="barLabel" x="180" y="88" text-anchor="middle" fill="#8D959E" font-family="IBM Plex Mono, monospace" font-size="10" letter-spacing="1.5">SIN CARGAR</text>
+    </svg>
+
+    <div class="scoreblock">
+      <div class="scorenum" id="scoreNum">—</div>
+      <div class="scorelbl">Recuperación<br>sobre 10</div>
+    </div>
+
+    <div class="q">
+      <label for="qSleepH">¿Cuántas horas dormiste anoche?</label>
+      <div class="hint">De verdad dormido, no en la cama con el móvil.</div>
+      <div class="slider-row"><input type="range" id="qSleepH" min="3" max="10" step="0.5" value="7"><span class="val mono" id="vSleepH">7</span></div>
+    </div>
+    <div class="q">
+      <label for="qSleepQ">Calidad del sueño</label>
+      <div class="hint">1 = me desperté 5 veces · 10 = del tirón y me levanté solo</div>
+      <div class="slider-row"><input type="range" id="qSleepQ" min="1" max="10" value="7"><span class="val mono" id="vSleepQ">7</span></div>
+    </div>
+    <div class="q">
+      <label for="qEnergy">Energía ahora mismo</label>
+      <div class="hint">1 = arrastrándome · 10 = con ganas de romper algo</div>
+      <div class="slider-row"><input type="range" id="qEnergy" min="1" max="10" value="7"><span class="val mono" id="vEnergy">7</span></div>
+    </div>
+    <div class="q">
+      <label for="qSore">Agujetas del entreno anterior</label>
+      <div class="hint">1 = ninguna · 10 = no puedo sentarme sin gemir</div>
+      <div class="slider-row"><input type="range" id="qSore" min="1" max="10" value="4"><span class="val mono" id="vSore">4</span></div>
+    </div>
+    <div class="q">
+      <label for="qStress">Estrés / carga mental del día</label>
+      <div class="hint">1 = tranquilo · 10 = día horrible en el trabajo</div>
+      <div class="slider-row"><input type="range" id="qStress" min="1" max="10" value="4"><span class="val mono" id="vStress">4</span></div>
+    </div>
+    <div class="q">
+      <label for="qKnee">Rodilla del ligamento lateral · dolor o inestabilidad</label>
+      <div class="hint">0 = como si nunca hubiera pasado · 10 = dolor claro al apoyar</div>
+      <div class="slider-row"><input type="range" id="qKnee" min="0" max="10" value="0"><span class="val mono" id="vKnee">0</span></div>
+    </div>
+    <div class="q">
+      <label for="qHR">Frecuencia cardíaca en reposo · dato de Cubitt Health</label>
+      <div class="hint">Ábrela al despertar y copia el número. Déjalo vacío si hoy no lo tienes.</div>
+      <input type="number" id="qHR" min="35" max="120" step="1" placeholder="Ej. 62">
+      <div class="hint" id="hrBase" style="margin-top:6px">Tu media aún se está construyendo: necesita 5 días registrados.</div>
+    </div>
+    <div class="q">
+      <label for="qRest">¿Descansaste ayer de verdad? (sin entreno duro ni trasnochar)</label>
+      <div class="slider-row" style="margin-top:6px">
+        <select id="qRest">
+          <option value="1">Sí, día tranquilo</option>
+          <option value="0.5" selected>A medias</option>
+          <option value="0">No, día duro o poca cama</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="verdict" id="verdict" style="display:none">
+      <h4 id="vTitle">—</h4>
+      <p id="vText">—</p>
+      <ul id="vList"></ul>
+    </div>
+  </div>
+
+  <!-- ENTRENAMIENTO -->
+  <div class="card" id="todayWorkoutCard">
+    <div class="card-hd"><h3>2 · Entrenamiento de hoy</h3><span class="tag ghost" id="woDur">—</span></div>
+    <div id="todayWorkout"></div>
+  </div>
+
+  <!-- COMIDA -->
+  <div class="card">
+    <div class="card-hd"><h3>3 · Comida de hoy</h3><span class="tag ghost" id="dietTag">—</span></div>
+    <div id="todayDiet"></div>
+  </div>
+
+  <div style="margin:18px 0 8px"><button class="btn" data-goto="registro">Registrar el día →</button></div>
+</section>
+
+<!-- ============== PLAN ============== -->
+<section class="tabpane" id="pane-plan">
+  <div class="eyebrow">Estructura semanal</div>
+  <h1 class="h-lg">El reparto</h1>
+  <p class="sub">Gimnasio de lunes a viernes, fin de semana libre. Dos piernas (martes y viernes), tres de tren superior. Las semanas A y B rotan para que pecho y espalda reciban la misma atención sin robarle días a la pierna.</p>
+
+  <div class="grid2" style="margin-top:14px">
+    <button class="btn sec" id="btnWkA">Semana A</button>
+    <button class="btn sec" id="btnWkB">Semana B</button>
+  </div>
+  <p class="note" style="margin-top:8px" id="wkNote">—</p>
+
+  <div class="weekstrip" id="weekStrip"></div>
+  <div id="planDetail"></div>
+
+  <div class="divider"></div>
+  <h2 class="h-md">Reglas de progresión</h2>
+  <details>
+    <summary>Cómo subir peso sin romperte</summary>
+    <p><b>Doble progresión.</b> Cada ejercicio tiene un rango, por ejemplo 8-10. Empiezas en el extremo bajo. Cuando consigues el extremo alto en todas las series con técnica limpia, subes carga (2,5 kg en tren superior, 5 kg en prensa/pierna) y vuelves al extremo bajo.</p>
+    <p><b>Reserva.</b> Trabaja a RIR 2 las semanas 1-2 (te quedan 2 repes en el depósito), RIR 1 desde la semana 3. En déficit nunca vayas al fallo absoluto en multiarticulares: te cuesta más recuperarte de lo que ganas.</p>
+    <p><b>Descarga.</b> Semanas 6 y 12: mismo entreno, mitad de series, 60 % de la carga. No es opcional cuando estás comiendo por debajo de mantenimiento.</p>
+  </details>
+  <details>
+    <summary>Protocolo rodilla · ligamento lateral</summary>
+    <p>Tu lesión fue hace 2 años, así que el tejido está curado, pero la propiocepción y el glúteo medio suelen quedarse cortos y eso es lo que vuelve a poner en riesgo la rodilla.</p>
+    <ul>
+      <li><b>Innegociable:</b> los 8 minutos de activación antes de cada día de pierna. Es lo que blinda la articulación.</li>
+      <li><b>Evita:</b> saltos, cambios de dirección, sentadilla con rodilla hacia dentro, sentadilla profunda con carga alta las primeras 6 semanas, y cualquier máquina que te obligue a una posición lateral forzada.</li>
+      <li><b>Vigila:</b> si notas la rodilla "floja" hacia fuera, dolor puntual en la cara externa, o inflamación al día siguiente, baja carga un 20 % y avisa a un fisio.</li>
+      <li><b>Regla del 3:</b> si tres sesiones seguidas te dejan dolor superior a 4/10, para de programar por tu cuenta y ve a valoración presencial.</li>
+    </ul>
+  </details>
+  <details>
+    <summary>Cardio: cuánto y cuándo</summary>
+    <ul>
+      <li><b>Pasos:</b> 10.000 al día mínimo, 12.000 objetivo. Esto quema más grasa al mes que todo el cardio del gimnasio junto.</li>
+      <li><b>LISS:</b> 20-25 min al terminar los días de torso, bici estática o elíptica, pulsaciones donde puedas hablar con frases cortas. Nunca antes de pesas.</li>
+      <li><b>Días de pierna:</b> cero cardio después. Ya has hecho suficiente y tu rodilla lo agradece.</li>
+      <li><b>Correr:</b> no todavía. Espera a estar por debajo de 80 kg y con la rodilla en 0/10 durante un mes seguido.</li>
+    </ul>
+  </details>
+</section>
+
+<!-- ============== COMIDA ============== -->
+<section class="tabpane" id="pane-comida">
+  <div class="eyebrow">Alimentación</div>
+  <h1 class="h-lg">Qué comer cada día</h1>
+  <p class="sub">Las calorías se mueven con el entreno: más carbohidrato los días de pierna, menos los días sin pesas. La proteína no baja nunca.</p>
+
+  <div class="grid2" style="margin-top:14px">
+    <button class="btn sec" data-diet="pierna">Día de pierna</button>
+    <button class="btn sec" data-diet="torso">Día de torso</button>
+    <button class="btn sec" data-diet="activa">Recuperación</button>
+    <button class="btn sec" data-diet="descanso">Descanso</button>
+  </div>
+  <div id="dietDetail"></div>
+
+  <div class="divider"></div>
+  <h2 class="h-md">Lo que sostiene todo lo demás</h2>
+  <details>
+    <summary>Cambios permitidos</summary>
+    <p>Puedes intercambiar dentro de cada columna sin recalcular nada:</p>
+    <ul>
+      <li><b>Proteína (por 180 g de pollo):</b> 180 g pavo · 200 g pescado blanco · 150 g ternera magra · 200 g gambas · 5 huevos enteros · 200 g tofu firme + 30 g de proteína extra.</li>
+      <li><b>Carbohidrato (por 200 g de arroz cocido):</b> 250 g patata · 250 g boniato · 180 g pasta cocida · 200 g quinoa cocida · 250 g legumbre cocida · 80 g de pan integral.</li>
+      <li><b>Grasa (por 10 ml de aceite de oliva):</b> 15 g frutos secos · 1/3 de aguacate · 12 g crema de cacahuete.</li>
+      <li><b>Verdura:</b> libre. Todo lo que quieras, no la cuentes.</li>
+    </ul>
+  </details>
+  <details>
+    <summary>Hidratación, sal y café</summary>
+    <ul>
+      <li><b>Agua:</b> 3 a 3,5 L al día. En déficit y con 5 entrenos, la deshidratación se disfraza de fatiga.</li>
+      <li><b>Sal:</b> no la elimines. Sales mucho a las 16 h y la necesitas para rendir. Añade una pizca al agua del pre-entreno.</li>
+      <li><b>Café:</b> el último a las 15:30. Entrenas a las 16-17 h y la cafeína tarda 6 horas en irse a la mitad; después de esa hora te está robando el sueño que necesitas para perder grasa.</li>
+      <li><b>Alcohol:</b> es el mayor saboteador silencioso de este plan. Si bebes, que sea un día a la semana, máximo 2 consumiciones, y descuenta el carbohidrato de la cena.</li>
+    </ul>
+  </details>
+  <details>
+    <summary>Suplementos: solo lo que tiene evidencia</summary>
+    <ul>
+      <li><b>Creatina monohidrato, 5 g al día, siempre.</b> Da igual la hora. Es lo que más te va a ayudar a conservar músculo mientras pierdes grasa.</li>
+      <li><b>Proteína en polvo:</b> herramienta de comodidad, no magia. Te ayuda a llegar a 185 g sin cocinar cinco veces.</li>
+      <li><b>Vitamina D3:</b> si no te da el sol a diario, 2000 UI. Pide analítica antes si puedes.</li>
+      <li><b>Omega 3 (EPA+DHA 1-2 g):</b> útil si comes pescado azul menos de dos veces por semana.</li>
+      <li><b>Lo que no necesitas:</b> quemagrasas, BCAA, CLA, l-carnitina. Ninguno mueve la aguja y todos te cuestan dinero.</li>
+    </ul>
+  </details>
+  <details>
+    <summary>Comer fuera sin descarrilar</summary>
+    <ul>
+      <li>Elige el plato por la proteína primero: parrilla, plancha, horno.</li>
+      <li>Pide la salsa aparte y la guarnición cambiada por ensalada o verdura.</li>
+      <li>Un día social a la semana no rompe nada si el resto ha sido limpio. Lo que rompe el plan es el "ya que estoy" del día siguiente.</li>
+      <li>Truco: ese día haz el desayuno y la media mañana solo de proteína + verdura, y guarda el carbohidrato para la comida social.</li>
+    </ul>
+  </details>
+</section>
+
+<!-- ============== FOTO ============== -->
+<section class="tabpane" id="pane-foto">
+  <div class="eyebrow">Cuando comes fuera del plan</div>
+  <h1 class="h-lg">Tu plato de hoy</h1>
+  <p class="sub">Fotografía lo que tienes delante y te digo qué lleva más o menos y cuánto ocupa de tu día. Sirve para comidas de trabajo, restaurantes, casa de tu madre: todo lo que no estaba en la lista.</p>
+
+  <div class="card">
+    <div class="card-hd"><h3>1 · Haz la foto</h3><span class="tag ghost" id="fotoDayTag">—</span></div>
+    <label class="shoot" for="photoIn">
+      <div class="big">📷 Fotografiar el plato</div>
+      <div class="sm">Desde arriba, con el plato entero y algo de referencia al lado: un tenedor, un vaso o tu mano</div>
+      <input type="file" accept="image/*" capture="environment" id="photoIn">
+    </label>
+    <img class="preview" id="preview" style="display:none" alt="Plato fotografiado">
+
+    <div id="describeBox" style="display:none">
+      <div class="q" style="margin-top:14px">
+        <label for="photoDesc">¿Qué es? · opcional pero recomendable</label>
+        <div class="hint">Si la foto no lo deja claro, escríbelo tú. Cuanto más concreto, mejor sale la estimación.</div>
+        <textarea id="photoDesc" placeholder="Ej: arroz con pollo guisado, lleva medio aguacate y estaba hecho con bastante aceite. Ración de restaurante."></textarea>
+      </div>
+      <div class="optbar" id="descChips"></div>
+      <p class="note" style="margin-top:8px"><b style="color:var(--chalk)">Lo que más ayuda contarme:</b> el método de cocción (frito, plancha, guisado), si lleva salsa o aceite escondido, si la ración es grande o normal, y cualquier ingrediente que quede tapado debajo. Eso es justo lo que una foto no puede mostrar.</p>
+    </div>
+
+    <button class="btn" id="btnAnalyze" style="margin-top:12px;display:none">Analizar el plato</button>
+    <div id="analysisOut"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>2 · Llevas comido hoy</h3><span class="tag ghost" id="eatenCount">0 platos</span></div>
+    <div class="bars" id="eatenBars"></div>
+    <p class="note" id="eatenVerdict" style="margin-top:12px">Aún no has añadido nada. Analiza un plato o usa la estimación con la mano de abajo.</p>
+    <div class="grid2" style="margin-top:14px">
+      <button class="btn sec" id="btnUndo">Quitar el último</button>
+      <button class="btn sec" id="btnClearDay">Vaciar el día</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>3 · Evidencia fotográfica del día</h3><span class="tag ghost" id="galCount">0 fotos</span></div>
+    <div id="gallery"></div>
+    <p class="note" style="margin-top:10px">Las fotos se guardan comprimidas en tu dispositivo, junto al resto de tus datos. Al día siguiente empieza una galería nueva; las anteriores siguen guardadas por fecha.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>4 · Sin foto: mide con la mano</h3><span class="tag yellow">Siempre la llevas encima</span></div>
+    <p class="note">Tu mano escala con tu cuerpo, así que es una regla de medida sorprendentemente fiable y no necesita báscula ni batería. Cuenta cuánto hay de cada cosa en el plato y añádelo:</p>
+    <div class="handgrid">
+      <div class="hand">
+        <div class="icon">✋</div><div class="t">Palma</div>
+        <div class="d">Proteína: carne, pescado, huevo, tofu. Del grosor de tu palma, sin los dedos.</div>
+        <div class="n">≈ 170 kcal · 30 g P</div>
+        <div class="counter"><button class="step" data-h="p" data-v="-1">−</button><span class="num" id="hp">0</span><button class="step" data-h="p" data-v="1">+</button></div>
+      </div>
+      <div class="hand">
+        <div class="icon">✊</div><div class="t">Puño</div>
+        <div class="d">Carbohidrato: arroz, pasta, patata, pan, legumbre. Un puño cerrado.</div>
+        <div class="n">≈ 200 kcal · 45 g C</div>
+        <div class="counter"><button class="step" data-h="c" data-v="-1">−</button><span class="num" id="hc">0</span><button class="step" data-h="c" data-v="1">+</button></div>
+      </div>
+      <div class="hand">
+        <div class="icon">👍</div><div class="t">Pulgar</div>
+        <div class="d">Grasa: aceite, mantequilla, queso, frutos secos, aguacate, salsas.</div>
+        <div class="n">≈ 100 kcal · 11 g G</div>
+        <div class="counter"><button class="step" data-h="f" data-v="-1">−</button><span class="num" id="hf">0</span><button class="step" data-h="f" data-v="1">+</button></div>
+      </div>
+      <div class="hand">
+        <div class="icon">🤲</div><div class="t">Dos manos</div>
+        <div class="d">Verdura y ensalada. Cuenta poco y sacia mucho: no te cortes.</div>
+        <div class="n">≈ 25 kcal</div>
+        <div class="counter"><button class="step" data-h="v" data-v="-1">−</button><span class="num" id="hv">0</span><button class="step" data-h="v" data-v="1">+</button></div>
+      </div>
+    </div>
+    <button class="btn" id="btnAddHand" style="margin-top:12px">Añadir esta estimación</button>
+    <p class="note" style="margin-top:10px"><b style="color:var(--chalk)">Truco de restaurante.</b> Casi siempre te sirven 2 puños de carbohidrato y 2-3 pulgares de grasa escondida en la salsa y el aceite de cocinado. Si dudas, cuenta un pulgar más de grasa del que ves: es el error más habitual y el que más calorías esconde.</p>
+  </div>
+
+  <div class="card flat">
+    <div class="card-hd"><h3>Hasta dónde te puedes fiar</h3></div>
+    <p class="note">Una estimación desde una foto se equivoca típicamente entre un 20 y un 30 %, y falla sobre todo con lo que no se ve: el aceite del cocinado, el azúcar de una salsa, la mantequilla de un puré. No es una báscula y no debes tratarla como tal.</p>
+    <p class="note" style="margin-top:8px">Para lo que sí sirve, que es mucho: saber si ese plato ha sido un 20 % o un 60 % de tu día, y decidir con eso qué cenas después. Esa decisión no necesita precisión de laboratorio, necesita una referencia rápida. Los días que comas en casa, sigue el plan y no fotografíes nada: ahí ya sabes lo que hay.</p>
+  </div>
+</section>
+
+<!-- ============== REGISTRO ============== -->
+<section class="tabpane" id="pane-registro">
+  <div class="eyebrow">Seguimiento</div>
+  <h1 class="h-lg">Registro diario</h1>
+  <p class="sub">Pésate en ayunas, después del baño, sin ropa, siempre igual. Lo que importa no es el número de hoy sino la línea de la semana.</p>
+
+  <div class="card">
+    <div class="q"><label for="lgDate">Fecha</label><input type="date" id="lgDate"></div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="q" style="margin:0"><label for="lgWeight">Peso (kg)</label><input type="number" id="lgWeight" step="0.1" placeholder="87.0"></div>
+      <div class="q" style="margin:0"><label for="lgSteps">Pasos</label><input type="number" id="lgSteps" step="100" placeholder="10000"></div>
+    </div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="q" style="margin:0"><label for="lgSleep">Sueño (h)</label><input type="number" id="lgSleep" step="0.5" placeholder="7.5"></div>
+      <div class="q" style="margin:0"><label for="lgAdh">Dieta cumplida (%)</label><input type="number" id="lgAdh" step="5" placeholder="90"></div>
+    </div>
+    <div class="q"><label for="lgTrain">¿Entrenaste?</label>
+      <select id="lgTrain">
+        <option value="completo">Sí, sesión completa</option>
+        <option value="parcial">Sí, pero recortada</option>
+        <option value="activa">Recuperación activa / caminata</option>
+        <option value="no">No</option>
+      </select>
+    </div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="q" style="margin:0"><label for="lgKnee">Rodilla (0-10)</label><input type="number" id="lgKnee" min="0" max="10" step="1" placeholder="0"></div>
+      <div class="q" style="margin:0"><label for="lgRec">Recuperación</label><input type="number" id="lgRec" min="1" max="10" step="0.1" placeholder="—"></div>
+    </div>
+    <div class="q"><label for="lgHR">FC en reposo (ppm) · Cubitt Health</label><input type="number" id="lgHR" min="35" max="120" step="1" placeholder="62"></div>
+    <div class="q"><label for="lgNotes">Notas · cargas, sensaciones, qué falló</label><textarea id="lgNotes" placeholder="Prensa 3x10 con 120 kg, subí 5 kg. Rodilla bien. Cené fuera."></textarea></div>
+    <button class="btn" id="btnSave" style="margin-top:14px">Guardar el día</button>
+    <p class="note mono" id="storageStatus" style="margin-top:10px;font-size:11px">Comprobando el almacenamiento…</p>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>Diagnóstico de memoria</h3><span class="tag ghost" id="diagTag">—</span></div>
+    <p class="note">Esto te dice, sin adivinar, si tu móvil está guardando de verdad.</p>
+    <div id="diagBox" style="margin-top:12px"></div>
+    <button class="btn sec" id="btnDiag" style="margin-top:12px">Volver a comprobar</button>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>Copia de seguridad</h3><span class="tag yellow">Hazla cada domingo</span></div>
+    <p class="note">Descargar el archivo es lo más seguro: te queda un fichero real en el móvil, con tus días y tus fotos, que puedes guardar donde quieras. Sobrevive aunque se borre el navegador o cambies de teléfono.</p>
+    <div class="grid2" style="margin-top:12px">
+      <button class="btn" id="btnDownload">Descargar archivo</button>
+      <label class="btn sec" for="fileIn" style="margin:0">Cargar archivo
+        <input type="file" accept=".json,application/json" id="fileIn" style="display:none">
+      </label>
+    </div>
+    <div class="grid2" style="margin-top:10px">
+      <button class="btn sec" id="btnBackup">Copiar como texto</button>
+      <button class="btn sec" id="btnRestoreOpen">Pegar texto</button>
+    </div>
+    <div id="restoreBox" style="display:none;margin-top:12px">
+      <textarea id="restoreTxt" placeholder="Pega aquí la copia de seguridad"></textarea>
+      <button class="btn" id="btnRestore" style="margin-top:10px">Restaurar estos datos</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>Cómo usar Cubitt Health con esto</h3><span class="tag ghost">30 s al día</span></div>
+    <p class="note">No existe conexión automática entre Cubitt y esta app, así que el puente lo haces tú. Son cuatro números que ya tienes medidos:</p>
+    <ul class="note" style="padding-left:18px;margin-top:8px">
+      <li><b>Al despertar</b>, abre Cubitt Health y mira el resumen de la noche. Copia aquí las <b>horas de sueño</b> y la <b>frecuencia cardíaca en reposo</b>.</li>
+      <li><b>Pésate</b> antes de desayunar y apunta el peso.</li>
+      <li><b>Por la noche</b>, mira los <b>pasos</b> del día en Cubitt y añade el porcentaje de dieta cumplida.</li>
+      <li>Guarda. Ya está.</li>
+    </ul>
+    <p class="note" style="margin-top:10px"><b style="color:var(--chalk)">Por qué merece la pena el minuto.</b> La frecuencia en reposo es el dato más infravalorado de tu pulsera. Cuando sube 5-8 pulsaciones sobre tu media habitual, casi siempre significa fatiga acumulada, sueño malo o una infección empezando, y lo detecta uno o dos días antes de que tú lo notes. Esta app calcula tu media personal y ajusta la puntuación de recuperación con ella.</p>
+    <p class="note" style="margin-top:8px">Si Cubitt Health sincroniza con Salud de Apple o Google Fit en tu teléfono, actívalo: así los pasos y el sueño te aparecen en un solo sitio y tardas menos en copiarlos.</p>
+    <p class="note" style="margin-top:8px">Y cuando quieras que yo analice tu evolución, pulsa <b>Copiar datos</b> abajo y pégamelos en el chat. Con eso veo la tendencia completa y te digo si hay que ajustar calorías, cargas o descansos.</p>
+  </div>
+
+  <div class="chartbox">
+    <div class="eyebrow" style="padding:0 4px 6px">Curva de peso</div>
+    <svg id="chart" viewBox="0 0 340 190" style="width:100%;height:auto" role="img" aria-label="Gráfico de evolución del peso"></svg>
+    <div class="legend">
+      <span><i style="background:var(--p-yellow)"></i>Tu peso</span>
+      <span><i style="background:var(--p-blue)"></i>Ritmo objetivo</span>
+      <span><i style="background:var(--p-green)"></i>Meta 73 kg</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>Últimos registros</h3></div>
+    <div id="histWrap"><p class="note">Aún no hay registros. Guarda el primero arriba.</p></div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>Resumen de los últimos 7 días</h3></div>
+    <div class="macros" id="weekSummary">
+      <div class="macro"><div class="m-v">—</div><div class="m-l">Δ Peso</div></div>
+      <div class="macro"><div class="m-v">—</div><div class="m-l">Sueño</div></div>
+      <div class="macro"><div class="m-v">—</div><div class="m-l">Pasos</div></div>
+      <div class="macro"><div class="m-v">—</div><div class="m-l">Dieta</div></div>
+    </div>
+    <p class="note" id="weekVerdict">Registra al menos 4 días para que aparezca la lectura semanal.</p>
+  </div>
+
+  <div class="grid2" style="margin:16px 0 8px">
+    <button class="btn sec" id="btnExport">Copiar datos</button>
+    <button class="btn danger" id="btnReset">Borrar todo</button>
+  </div>
+</section>
+
+<!-- ============== GUÍA ============== -->
+<section class="tabpane" id="pane-guia">
+  <div class="eyebrow">Los números detrás del plan</div>
+  <h1 class="h-lg">Por qué así</h1>
+
+  <div class="card">
+    <div class="card-hd"><h3>Tu punto de partida</h3></div>
+    <div class="macros">
+      <div class="macro"><div class="m-v">87,0</div><div class="m-l">kg</div></div>
+      <div class="macro"><div class="m-v">24,3</div><div class="m-l">% grasa</div></div>
+      <div class="macro"><div class="m-v">21,1</div><div class="m-l">kg grasa</div></div>
+      <div class="macro"><div class="m-v">65,9</div><div class="m-l">kg magros</div></div>
+    </div>
+    <p class="note">Con 1,72 m tu IMC es 29,4, pero el IMC aquí miente: cargas 62,6 kg de masa muscular, que es bastante. Tu problema no es falta de músculo, son esos 21 kg de grasa. Por eso el plan no es "ganar volumen", es descubrir lo que ya tienes debajo.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>Las calorías, paso a paso</h3></div>
+    <p class="note" style="margin-bottom:10px">Nada de esto es un número mágico sacado de una app. Así se calcula:</p>
+    <ul class="note" style="padding-left:18px">
+      <li><b>Metabolismo basal</b> (fórmula de Katch-McArdle sobre tus 65,9 kg magros): <span class="mono">≈ 1.795 kcal</span>. Es lo que gastas tumbado sin moverte.</li>
+      <li><b>Gasto total</b> con 5 entrenos, 10.000 pasos y tu vida normal: <span class="mono">≈ 2.700-2.800 kcal</span>.</li>
+      <li><b>Déficit aplicado:</b> unas <span class="mono">650-700 kcal</span> al día. Eso son ~0,65 kg de grasa por semana, que es el ritmo donde se pierde grasa y no músculo.</li>
+      <li><b>Media semanal del plan:</b> <span class="mono">2.078 kcal</span> al día, repartidas de forma desigual: comes más los días que más trabajas.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>El calendario real</h3><span class="tag yellow">Léelo entero</span></div>
+    <p class="note">Quieres 73 kg en 4 meses: 14 kg en 17 semanas, unos 0,82 kg semanales. Te lo digo sin adornos porque mereces un plan honesto y no una promesa de folleto:</p>
+    <ul class="note" style="padding-left:18px">
+      <li><b>Las primeras 2 semanas</b> vas a bajar 2-3 kg. Mucho de eso es agua y glucógeno, no grasa. No te emociones ni lo tomes como el ritmo normal.</li>
+      <li><b>De ahí en adelante</b> el ritmo sostenible es 0,6-0,8 kg por semana. Multiplica: llegas a la semana 17 entre 73 y 76 kg.</li>
+      <li><b>Escenario probable con buena adherencia:</b> 74-76 kg, con la grasa alrededor del 14-16 %. Y te vas a ver mejor a 75 kg con 15 % de grasa que a 73 kg mal hechos.</li>
+      <li><b>Escenario de 73 kg exactos:</b> posible, pero exige adherencia casi perfecta las 17 semanas. Si en la semana 8 vas por encima de 80,5 kg, el plan añade el ajuste de fase 2.</li>
+      <li><b>Lo importante:</b> el peso es la métrica menos fiable de las cuatro. Mide también cintura, foto mensual y las cargas que mueves. Si el peso baja y las cargas suben, lo estás haciendo perfecto.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>Las tres fases</h3></div>
+    <p class="note"><b>Fase 1 · semanas 1-6.</b> Calorías tal como están en la pestaña Comida. Objetivo: construir el hábito y recuperar la confianza en la rodilla. Descarga en la semana 6.</p>
+    <p class="note"><b>Fase 2 · semanas 7-12.</b> Si el ritmo va por debajo de 0,5 kg/semana de media, resta 150 kcal a los días de torso y descanso (quita el carbohidrato del desayuno) y sube a 12.000 pasos. Descarga en la semana 12.</p>
+    <p class="note"><b>Fase 3 · semanas 13-17.</b> Últimos ajustes: 150 kcal menos y una sesión extra de 30 min de caminata en cuesta el sábado, que ya es día sin gimnasio. Aquí la proteína sube a 190-200 g porque es cuando más riesgo hay de perder músculo.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>Cuando el peso se estanca</h3></div>
+    <p class="note">Un estancamiento real son <b>10-14 días seguidos</b> sin cambio, no tres días. Antes de tocar las calorías, revisa en este orden:</p>
+    <ul class="note" style="padding-left:18px">
+      <li>¿Estás pesando la comida o calculando a ojo? El ojo se equivoca en un 30 %.</li>
+      <li>¿Los pasos han bajado sin que te dieras cuenta? Es lo primero que cae cuando estás cansado.</li>
+      <li>¿Duermes menos de 7 h? Con 6 h se pierde el doble de músculo y menos grasa con el mismo déficit.</li>
+      <li>¿Has empezado creatina o has comido más sal? Eso es agua, se va solo.</li>
+      <li>Solo si todo lo anterior está bien: baja 150 kcal. Nunca más de 150 de golpe.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>Señales de que hay que frenar</h3><span class="tag red">Importante</span></div>
+    <ul class="note" style="padding-left:18px">
+      <li>Pierdes más de 1,2 kg por semana durante dos semanas seguidas: el déficit es excesivo y estás quemando músculo.</li>
+      <li>Las cargas bajan tres sesiones seguidas en los mismos ejercicios.</li>
+      <li>Dolor de rodilla por encima de 4/10 que aparece al día siguiente y no se va.</li>
+      <li>Insomnio, irritabilidad marcada, manos frías constantes o pérdida de libido.</li>
+      <li>Pensamientos de saltarte comidas para "compensar" o culpa después de comer.</li>
+    </ul>
+    <p class="note" style="margin-top:10px">Cualquiera de estos significa comer más y entrenar menos durante una semana, no apretar más.</p>
+  </div>
+
+  <div class="card flat">
+    <p class="note">Este programa está hecho a partir de los datos que diste y de principios generales de entrenamiento y nutrición. No sustituye a un médico, un dietista-nutricionista colegiado ni a un fisioterapeuta. Por tu antecedente de rotura del ligamento lateral, lo ideal es que un fisio te valore la rodilla en persona antes de la primera sesión de pierna, y que un médico te revise si tienes cualquier condición previa.</p>
+  </div>
+</section>
+
+</main>
+
+<nav class="bottom" style="grid-template-columns:repeat(6,1fr)">
+  <button class="on" data-tab="hoy">Hoy</button>
+  <button data-tab="plan">Plan</button>
+  <button data-tab="comida">Comida</button>
+  <button data-tab="foto">Foto</button>
+  <button data-tab="registro">Registro</button>
+  <button data-tab="guia">Guía</button>
+</nav>
+
+<div class="toast" id="toast">Guardado</div>
+
+<script>
+/* ============================================================
+   DATOS DEL PROGRAMA
+   ============================================================ */
+const START_WEIGHT = 87.0, TARGET_WEIGHT = 73.0, WEEKS = 17;
+const midnight = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+let START_DATE = midnight(new Date());
+
+const yt = n => 'https://www.youtube.com/results?search_query=' + encodeURIComponent(n + ' técnica correcta ejercicio');
+
+/* ---------- POR QUÉ ESTE EJERCICIO + QUÉ HACER SI NO HAY MÁQUINA ---------- */
+const FACEPULL = {
+  why:'Es el ejercicio más barato en fatiga y más rentable en salud de hombro que existe. Trabaja el deltoides posterior y los rotadores externos, que son justo los músculos que se quedan cortos cuando haces mucho press. Además tira de los hombros hacia atrás y corrige la postura adelantada de estar sentado todo el día.',
+  alt:['<b>Banda elástica atada a algo fijo:</b> mismo movimiento, y para este ejercicio la banda es tan buena como la polea porque la tensión crece justo donde más lo necesitas.','<b>Pájaros tumbado boca abajo en banco inclinado</b> con mancuernas ligeras, 3 × 20.','<b>Remo al mentón con cuerda</b> en polea baja, agarre ancho y sin subir los codos por encima del hombro.']
+};
+const CARDIO_ALT = {
+  why:'El cardio de baja intensidad después de pesas suma unas 200-250 kcal sin interferir con la recuperación muscular ni cargar la rodilla. Va al final y no al principio porque si lo haces antes llegas a los pesos con el depósito medio vacío y entrenas peor.',
+  alt:['<b>Cinta en pendiente</b> al 8-10 % caminando a 5 km/h: cero impacto, quema parecida a trotar. Es la mejor opción para tu rodilla.','<b>Remo ergómetro</b> a ritmo suave: suma tren superior y no carga la articulación.','<b>Caminar a la calle</b> 30 minutos al salir del gimnasio. Cuenta exactamente igual y no tienes que esperar máquina.']
+};
+const CALENT_TORSO = {
+  why:'El manguito rotador es un grupo de músculos pequeños que estabilizan la cabeza del húmero. Si entras frío a un press pesado, esos músculos llegan tarde y el hombro trabaja descolocado. Seis minutos aquí te ahorran meses de tendinitis.',
+  alt:['<b>Sin bandas:</b> rotaciones con una mancuerna de 2 kg tumbado de lado, 2 × 15 por brazo.','<b>Sin máquinas de cardio libres:</b> 50 saltos de tijera sin salto (paso lateral) + 20 círculos de brazos en cada sentido.','<b>Sin nada:</b> 2 series de 15 flexiones contra la pared, muy controladas, y 20 elevaciones de brazos.']
+};
+
+const EX_EXTRA = {
+  'Activación y calentamiento de rodilla':{
+    why:'Después de una rotura de ligamento lateral, lo que suele quedar dañado no es el ligamento (ese ya cicatrizó) sino la coordinación: el glúteo medio se activa tarde y la rodilla se va hacia dentro bajo carga. Estos 8 minutos le recuerdan al glúteo que tiene que entrar primero. Es literalmente el ejercicio que evita que te vuelvas a lesionar.',
+    alt:['<b>Sin banda elástica:</b> sentadilla isométrica contra la pared 3 × 30 s + 20 elevaciones de cadera a una pierna por lado.','<b>Sin bici estática:</b> 5 minutos de marcha rápida en el sitio o subir y bajar dos tramos de escalera.','<b>Con prisa:</b> lo mínimo innegociable son las 2 series de paseo lateral con banda. Si solo tienes 3 minutos, haz eso.']
+  },
+  'Prensa 45°':{
+    why:'Es tu ejercicio de fuerza principal de pierna en lugar de la sentadilla libre, y la razón es concreta: la máquina te sujeta el tronco y elimina el trabajo de estabilización lateral, que es justo el vector que estresaría tu ligamento lateral. Puedes mover mucha carga con el cuádriceps y el glúteo sin pedirle a la rodilla que aguante fuerzas de lado.',
+    alt:['<b>Prensa horizontal sentado:</b> prácticamente idéntica, ajusta el respaldo para no pasar de 90°.','<b>Hack squat en máquina:</b> más exigente para el cuádriceps, mismo control lateral. Buena opción si dominas la técnica.','<b>Sentadilla en multipower</b> con los pies un poco adelantados: la barra guiada te da parte de la estabilidad que da la prensa.','<b>Sin ninguna máquina:</b> sentadilla goblet pesada 4 × 12 + zancada estática. Necesitarás más series para compensar la carga.']
+  },
+  'Sentadilla goblet con mancuerna':{
+    why:'El peso colocado delante del pecho actúa de contrapeso y te obliga a mantener el torso vertical. Eso reparte la carga entre cadera y rodilla en lugar de concentrarla, y te enseña un patrón de sentadilla limpio con mucha menos carga absoluta que la barra.',
+    alt:['<b>Con kettlebell</b> en vez de mancuerna: se agarra mejor y es lo mismo.','<b>Sentadilla en máquina Smith</b> con paso corto, 3 × 12.','<b>Sentadilla con disco</b> sujeto contra el pecho con los dos brazos.','<b>Sin material:</b> sentadilla búlgara sin peso 3 × 15 por pierna, con la bajada en 3 segundos.']
+  },
+  'Zancada estática en multipower':{
+    why:'Trabaja cada pierna por separado, que es como se corrige la asimetría que casi todo el mundo arrastra tras una lesión. Se hace en multipower y no libre porque la barra guiada elimina el balanceo lateral: tú solo tienes que subir y bajar, no equilibrarte.',
+    alt:['<b>Zancada estática con mancuernas</b> junto a una pared o máquina donde apoyar la mano libre para estabilizarte.','<b>Prensa a una pierna</b> con recorrido corto: mismo objetivo unilateral, cero exigencia de equilibrio.','<b>Zancada en el sitio agarrado a una polea o barra fija</b> con la mano contraria, peso corporal 3 × 15.']
+  },
+  'Extensión de cuádriceps':{
+    why:'Es el único ejercicio que aísla el cuádriceps, y en particular el vasto medial, que es el estabilizador que casi siempre se atrofia después de una lesión de rodilla. Con peso moderado y control es protector, no dañino: el mito de que "destroza las rodillas" viene de gente que lo hace con demasiada carga y a tirones.',
+    alt:['<b>Extensión a una pierna</b> en la misma máquina si está libre: mejor todavía para corregir asimetría.','<b>Sentadilla sissy asistida</b> agarrado a una barra fija, 3 × 12, muy controlada.','<b>Extensión con banda elástica</b> sentado en un banco, banda atada a la pata trasera. Menos carga, pero cumple.','<b>Isométrico de cuádriceps:</b> sentado, pierna extendida, aguanta 20 s × 5 por lado. Es lo que se usa en rehabilitación.']
+  },
+  'Curl femoral tumbado':{
+    why:'Los isquiotibiales frenan el desplazamiento de la tibia hacia delante, así que un isquio fuerte descarga trabajo de los ligamentos de la rodilla. En tu caso no es estética: es blindaje articular.',
+    alt:['<b>Curl femoral sentado o de pie</b> en la máquina que esté libre.','<b>Curl nórdico asistido:</b> de rodillas con los pies sujetos, baja despacio y ayúdate con las manos. Muy potente, 3 × 6.','<b>Curl con fitball o toalla en suelo liso:</b> tumbado, pies sobre la pelota, arrastra los talones hacia el glúteo, 3 × 12.','<b>Peso muerto rumano ligero</b> si no hay ninguna máquina de isquio.']
+  },
+  'Elevación de talones de pie':{
+    why:'El gemelo cruza la articulación de la rodilla y participa en su estabilidad posterior. Además es el músculo que absorbe el impacto al caminar, y tú vas a caminar 10.000 pasos diarios durante 17 semanas.',
+    alt:['<b>En prensa 45°:</b> pies en el borde bajo de la plataforma, empuja solo con las puntas.','<b>En un escalón con mancuerna</b> en una mano y la otra apoyada en la pared.','<b>A una pierna sin peso</b> en un escalón, 3 × 20 por lado.']
+  },
+  'Plancha frontal':{
+    why:'Un core que no aguanta hace que la pelvis se descoloque en la sentadilla y el peso muerto, y esa descolocación acaba pagándola la rodilla o la lumbar. La plancha entrena al core a resistir, que es su función real, no a doblarse como en los abdominales clásicos.',
+    alt:['<b>Plancha con apoyo en las rodillas</b> si 40 s te descuelgan la cadera. Mejor 20 s perfectos que 60 s hundidos.','<b>Rueda abdominal desde rodillas</b> 3 × 10.','<b>Dead bug</b> tumbado boca arriba, 3 × 10 por lado: más fácil de sentir y muy seguro.']
+  },
+  'Peso muerto rumano con barra o mancuernas':{
+    why:'Es el mejor constructor de isquiotibiales y glúteo en estiramiento, y esa posición estirada es donde más se crece. También te enseña la bisagra de cadera, el patrón que usas cada vez que levantas algo del suelo en la vida real.',
+    alt:['<b>Con mancuernas</b> si la barra te resulta incómoda: recorrido casi igual y más fácil de aprender.','<b>Peso muerto rumano a una pierna</b> con una mancuerna, 3 × 10 por lado: menos carga y trabaja el equilibrio.','<b>Buenos días en multipower</b> con carga ligera.','<b>Extensión de espalda en banco romano</b> con un disco al pecho, 3 × 15: mismo trabajo de cadena posterior con cero carga en la columna.']
+  },
+  'Empuje de cadera (hip thrust)':{
+    why:'Es el ejercicio que más activa el glúteo mayor de todos los que existen. Un glúteo fuerte extiende la cadera con potencia y así la rodilla no tiene que compensar. Traduce: menos dolor y más fuerza en todo lo demás.',
+    alt:['<b>Máquina de hip thrust</b> si tu gimnasio la tiene: más cómoda y evita colocar la barra.','<b>Puente de glúteo en el suelo</b> con barra o disco sobre la cadera, 3 × 15. Menos recorrido pero funciona.','<b>Empuje de cadera a una pierna</b> sin peso, espalda en el banco, 3 × 15 por lado.','<b>Patada de glúteo en polea</b> 3 × 15 por pierna.']
+  },
+  'Curl femoral sentado':{
+    why:'La versión sentada mantiene la cadera flexionada, lo que pre-estira el isquiotibial y genera más crecimiento que la variante tumbada. Por eso aparecen las dos en la semana: son estímulos distintos, no repetidos.',
+    alt:['<b>Curl femoral tumbado</b> si la sentada está ocupada.','<b>Curl nórdico asistido</b> 3 × 6-8.','<b>Curl con banda elástica</b> tumbado boca abajo, banda anclada abajo, 3 × 15.']
+  },
+  'Prensa a una pierna':{
+    why:'Después de dos años de lesión es muy probable que empujes más con la pierna sana sin darte cuenta, y en la prensa bilateral eso queda escondido. El trabajo a una pierna saca la asimetría a la luz y la corrige. Anota los pesos de cada lado.',
+    alt:['<b>Sentadilla búlgara</b> con mancuernas, pie trasero en un banco bajo, 3 × 10 por lado.','<b>Zancada inversa</b> (paso hacia atrás): carga menos la rodilla delantera que la zancada hacia delante.','<b>Extensión de cuádriceps a una pierna</b> 3 × 12 si quieres cero exigencia de equilibrio.']
+  },
+  'Abducción de cadera en máquina':{
+    why:'Este es, de todo tu plan, el ejercicio más importante para tu rodilla. El glúteo medio es el que impide que el fémur rote hacia dentro; cuando falla, la rodilla colapsa hacia el interior y el ligamento lateral se lleva la tensión. Es aburrido y hay que hacerlo igual.',
+    alt:['<b>Paseo lateral con banda</b> alrededor de las rodillas o los tobillos, 3 × 20 pasos por dirección.','<b>Abducción tumbado de lado</b> con tobillera lastrada o banda, 3 × 20 por pierna.','<b>Almeja (clamshell) con banda</b> tumbado de lado, rodillas dobladas, 3 × 20 por lado.','<b>Abducción de pie en polea baja</b> con tobillera, 3 × 15 por lado.']
+  },
+  'Subida a cajón bajo (30-35 cm)':{
+    why:'Lo que entrena de verdad no es la subida sino la bajada controlada: el cuádriceps trabaja frenando, que es exactamente lo que hace al bajar escaleras o una cuesta. Ese control excéntrico es la última pieza que se recupera después de una lesión de rodilla y la que evita las recaídas.',
+    alt:['<b>Bajada de escalón</b> sin subir: te colocas arriba y bajas despacio con una pierna, 3 × 10 por lado. Aún más específico.','<b>Zancada inversa</b> con mancuernas ligeras.','<b>Sentadilla a un banco</b>, tocando y volviendo a subir, 3 × 12.','Si no hay cajón, usa un banco plano bajo o el primer escalón de una grada.']
+  },
+  'Elevación de talones sentado':{
+    why:'Sentado, con la rodilla doblada, el gemelo queda en desventaja y el trabajo se lo lleva el sóleo, que es el músculo profundo de la pantorrilla. Se entrena distinto que de pie, por eso están los dos en la semana.',
+    alt:['<b>De pie</b> si la máquina sentada no existe, con más repeticiones.','<b>Sentado en un banco</b> con una mancuerna pesada sobre las rodillas y las puntas en un disco.','<b>En prensa</b> con las rodillas más dobladas de lo normal.']
+  },
+  'Press Pallof en polea':{
+    why:'Entrena al core a resistir la rotación, que es su trabajo real: mantener el tronco firme mientras las piernas hacen fuerza. En tu caso importa porque un tronco inestable transmite el desequilibrio a la cadera y de ahí a la rodilla.',
+    alt:['<b>Con banda elástica</b> atada a una máquina: igual de eficaz.','<b>Paseo del granjero a un solo lado</b> con una mancuerna pesada, 3 × 30 m: mismo principio anti-lateral.','<b>Plancha lateral</b> 3 × 30 s por lado.']
+  },
+  'Calentamiento':CALENT_TORSO,
+  'Press inclinado con mancuernas':{
+    why:'Va primero porque la parte alta del pectoral es la que más forma da al pecho y la que más suele faltar, y el primer ejercicio del día es el que recibe tu mejor energía. Las mancuernas permiten más recorrido que la barra y corrigen que un lado empuje más que el otro.',
+    alt:['<b>Press inclinado en máquina</b> o en multipower a 30°.','<b>Press inclinado con barra</b> si no hay mancuernas del peso que necesitas.','<b>Flexiones con los pies elevados</b> en un banco, 4 × 15: mismo ángulo, cero material.','<b>Cruce de poleas de abajo arriba</b> si todos los bancos están ocupados.']
+  },
+  'Press banca plano con barra o máquina':{
+    why:'Es el ejercicio que permite mover más carga total en el tren superior, y esa carga es la señal que le dice a tu cuerpo que conserve el músculo mientras comes por debajo de mantenimiento. En déficit, mantener la fuerza es mantener el músculo.',
+    alt:['<b>Press en máquina de placas</b> o multipower: más seguro si entrenas solo, y para tu objetivo rinde igual.','<b>Press con mancuernas plano</b> 4 × 10.','<b>Fondos en paralelas</b> con el torso inclinado hacia delante.','<b>Flexiones lastradas</b> con un disco en la espalda, 4 al fallo.']
+  },
+  'Aperturas en polea alta cruzada':{
+    why:'Los press empujan; las aperturas juntan. El pectoral hace las dos cosas y necesita las dos. La polea mantiene tensión constante en todo el recorrido, cosa que las mancuernas no hacen porque arriba el peso descansa.',
+    alt:['<b>Pec deck (contractora)</b> si está libre: mismo trabajo, más fácil de sentir.','<b>Aperturas con mancuernas</b> en banco plano o ligeramente inclinado, 3 × 15.','<b>Aperturas con bandas</b> ancladas detrás de ti a la altura del pecho.']
+  },
+  'Fondos en paralelas asistidos o press declinado':{
+    why:'Trabaja la parte baja del pectoral y el tríceps a la vez, en un patrón donde puedes mover mucho peso corporal. Es el ejercicio que más "cierra" el pecho por abajo y marca la línea inferior cuando baja la grasa.',
+    alt:['<b>Máquina de fondos asistidos</b> si no aguantas tu peso todavía.','<b>Fondos entre dos bancos</b> con los pies en el suelo y un disco en el regazo.','<b>Press declinado en máquina</b> 3 × 12.','<b>Flexiones con las manos elevadas</b> en una barra a la altura de la cadera si el hombro te molesta.']
+  },
+  'Extensión de tríceps en polea con cuerda':{
+    why:'El tríceps es dos tercios del volumen del brazo, más que el bíceps. La polea con cuerda te permite abrir las manos al final del recorrido y contraer del todo, que es donde la barra recta se queda corta.',
+    alt:['<b>Con barra recta o en V</b> en la misma polea.','<b>Extensión sobre la cabeza con mancuerna</b> a dos manos, 3 × 15.','<b>Fondos en banco</b> con los pies en el suelo, 3 × 15.','<b>Patada de tríceps con mancuerna</b> si solo hay peso libre.']
+  },
+  'Press francés con barra Z':{
+    why:'Es el que más estira la cabeza larga del tríceps, la porción que da grosor al brazo visto de lado y la que menos se trabaja en los press. Por eso va después de la polea: son porciones distintas del mismo músculo.',
+    alt:['<b>Extensión sobre la cabeza en polea</b> de espaldas a la máquina, con cuerda.','<b>Press francés con mancuernas</b>, mejor si tienes molestias de codo con la barra.','<b>Extensión sobre la cabeza sentado</b> con una mancuerna a dos manos.','<b>Rompecráneos con barra recta</b> si no hay barra Z, bajando por detrás de la cabeza.']
+  },
+  'Cardio LISS':CARDIO_ALT,
+  'Jalón al pecho agarre ancho':{
+    why:'Construye la anchura del dorsal, que es lo que crea la forma de V. Y aquí está el truco visual de tu objetivo: una espalda más ancha hace que la cintura parezca más estrecha incluso antes de que hayas perdido todos los kilos.',
+    alt:['<b>Dominadas asistidas</b> con agarre ancho si tu gimnasio tiene la máquina: es la versión superior.','<b>Jalón en máquina de placas</b> con apoyo en el pecho.','<b>Dominadas con banda elástica</b> como asistencia.','<b>Pullover con mancuerna</b> tumbado en un banco si no hay ninguna polea alta.']
+  },
+  'Remo en barra T o máquina':{
+    why:'El jalón te da anchura, el remo te da densidad y grosor en el centro de la espalda. También fortalece los músculos que tiran de los hombros hacia atrás, lo que mejora directamente tu postura y tu press de banca.',
+    alt:['<b>Remo con barra libre</b> inclinado a 45°, si tu lumbar aguanta bien.','<b>Remo en máquina con apoyo en el pecho:</b> quita toda la carga de la lumbar, ideal en días de poca energía.','<b>Remo con mancuernas a dos manos</b> apoyado el pecho en un banco inclinado.','<b>Remo en polea baja</b> con agarre en V.']
+  },
+  'Remo unilateral con mancuerna':{
+    why:'A un brazo, la escápula puede recorrer más distancia que en cualquier remo bilateral, así que el dorsal trabaja en más rango. Además, como ya haces trabajo unilateral en pierna, aquí aplicas el mismo principio arriba: cada lado responde de lo suyo.',
+    alt:['<b>Remo en polea baja a un brazo</b>, de rodillas o sentado.','<b>Remo unilateral en máquina</b> de placas, un lado cada vez.','<b>Remo con banda elástica a un brazo</b> anclada a la altura del pecho.']
+  },
+  'Pullover en polea alta':{
+    why:'Es el único ejercicio de espalda donde el bíceps no puede ayudarte, porque los brazos van casi rectos. Eso deja al dorsal solo y lo trabaja en su función de llevar el brazo desde arriba hasta el cuerpo. Al final de la sesión es perfecto: aísla lo que ya está cansado.',
+    alt:['<b>Con cuerda</b> en vez de barra: permite abrir al final y se siente más.','<b>Pullover con mancuerna</b> tumbado cruzado en un banco, 3 × 15.','<b>Pullover con banda</b> anclada arriba, de rodillas.']
+  },
+  'Face pull en polea':FACEPULL,
+  'Face pull':FACEPULL,
+  'Curl con barra Z':{
+    why:'La barra permite más carga total que las mancuernas y el agarre en zeta reduce la tensión en la muñeca y el codo. Va al final porque el bíceps ya ha trabajado en todos los remos y jalones: aquí solo se remata.',
+    alt:['<b>Curl con barra recta</b> si no hay Z y tus muñecas lo toleran.','<b>Curl con mancuernas a dos manos</b> simultáneo, 3 × 12.','<b>Curl en polea baja</b> con barra: tensión constante, muy buena opción.','<b>Curl con banda elástica</b> pisándola con los dos pies.']
+  },
+  'Curl martillo':{
+    why:'El agarre neutro trabaja el braquial, un músculo que está debajo del bíceps y lo empuja hacia arriba. Desarrollarlo es lo que hace que el brazo se vea grueso de frente, no solo de perfil.',
+    alt:['<b>Curl martillo en polea con cuerda</b> 3 × 12.','<b>Curl inverso con barra Z</b> (palmas hacia abajo): trabaja braquial y antebrazo.','<b>Curl martillo cruzado al pecho</b> alternando, si te molesta el codo.']
+  },
+  'Press banca plano con mancuernas':{
+    why:'Frente a la barra, las mancuernas bajan más y estiran más el pectoral, y obligan a cada lado a levantar lo suyo. En una semana donde ya haces press con barra el otro día de pecho, esta variante te da el estímulo que a la barra le falta.',
+    alt:['<b>Press en máquina de placas</b> o multipower.','<b>Press con barra</b> si las mancuernas pesadas están todas cogidas.','<b>Flexiones lastradas</b> o con las manos en agarres para profundizar más.']
+  },
+  'Press militar sentado con mancuernas':{
+    why:'El deltoides es el músculo que más ensancha la silueta vista de frente. Hombros anchos y cintura estrecha es exactamente la ecuación visual que persigues, y el press por encima de la cabeza es el que más masa le da.',
+    alt:['<b>Press militar en máquina</b> si tienes molestias de hombro: la trayectoria fija suele ir mejor.','<b>Press militar en multipower</b> sentado.','<b>Press Arnold</b> con rotación, 3 × 12, si quieres más recorrido.','<b>Press de pie con barra</b> si dominas la técnica y el core aguanta.']
+  },
+  'Cruce de poleas de abajo hacia arriba':{
+    why:'Ataca la parte superior del pectoral desde un ángulo distinto al del press inclinado, y con tensión constante. Repetir el mismo ángulo dos días a la semana deja zonas sin estímulo; variarlo es lo que completa el músculo.',
+    alt:['<b>Aperturas en banco inclinado</b> con mancuernas, 3 × 15.','<b>Pec deck</b> con el asiento más bajo de lo normal.','<b>Aperturas con banda</b> desde un anclaje bajo.']
+  },
+  'Elevaciones laterales':{
+    why:'Es el único ejercicio que aísla el deltoide medio, la porción que da anchura real al hombro. Los press trabajan sobre todo la porción frontal, así que sin elevaciones laterales el hombro crece hacia delante pero no hacia los lados.',
+    alt:['<b>En polea baja a un brazo:</b> tensión constante, probablemente la mejor versión.','<b>En máquina de abducción de hombro</b> si tu gimnasio la tiene.','<b>Con bandas elásticas</b> pisadas, 3 × 20.','<b>Elevaciones laterales tumbado de lado</b> en un banco inclinado, con muy poco peso.']
+  },
+  'Pájaros en polea o máquina':{
+    why:'El deltoide posterior es el más olvidado y el que más se queda atrás en cualquiera que haga press. Trabajarlo da profundidad al hombro visto de lado y equilibra la articulación, que es prevención pura de lesiones.',
+    alt:['<b>Pájaros con mancuernas</b> sentado con el torso apoyado en las rodillas, 3 × 20.','<b>Pec deck invertido</b> (de cara a la máquina).','<b>Pájaros tumbado boca abajo</b> en banco inclinado a 30°.','<b>Face pull</b> si nada de lo anterior está libre: trabaja lo mismo.']
+  },
+  'Fondos en máquina':{
+    why:'Con el torso vertical el trabajo se desplaza del pecho al tríceps, así que aquí funciona como ejercicio de brazo dentro de un día de empuje. La máquina te deja ajustar la carga con precisión al final de la sesión, cuando ya vas cansado.',
+    alt:['<b>Fondos en paralelas asistidos</b> con el torso recto.','<b>Fondos entre bancos</b> con peso en el regazo.','<b>Press cerrado en banco</b> 3 × 12, manos a la anchura de los hombros.']
+  },
+  'Dominadas asistidas o jalón agarre supino':{
+    why:'La dominada es el mejor ejercicio de espalda que existe y además es un indicador brutal de progreso: a medida que pierdas grasa vas a hacer más repeticiones sin haber ganado nada de fuerza, solo por pesar menos. Es de las cosas más motivantes de un déficit.',
+    alt:['<b>Jalón con agarre supino</b> (palmas hacia ti) si no hay máquina de asistencia.','<b>Dominadas con banda elástica</b> bajo los pies o la rodilla.','<b>Dominadas negativas:</b> te subes con un salto y bajas en 5 segundos, 4 × 5. Excelente para llegar a la primera dominada limpia.','<b>Remo invertido</b> bajo una barra a la altura de la cadera, cuerpo inclinado.']
+  },
+  'Remo en polea baja agarre estrecho':{
+    why:'El agarre estrecho y la trayectoria hacia el abdomen concentran el trabajo en la parte media de la espalda y los romboides, que son los que juntan las escápulas. Ahí es donde se construye el grosor que se ve por detrás.',
+    alt:['<b>Remo en máquina sentado</b> con apoyo en el pecho.','<b>Remo con mancuernas</b> apoyado el pecho en banco inclinado, 4 × 12.','<b>Remo con banda elástica</b> sentado en el suelo, banda alrededor de los pies.']
+  },
+  'Remo en máquina con apoyo en el pecho':{
+    why:'El apoyo elimina el balanceo y descarga la lumbar por completo, así que todo el esfuerzo va a la espalda y nada al truco. Es perfecto como segundo o tercer ejercicio, cuando ya estás cansado y la técnica empieza a degradarse.',
+    alt:['<b>Remo con mancuernas en banco inclinado a 30°</b>, tumbado boca abajo: mismo principio sin máquina.','<b>Remo en polea baja</b> manteniendo el torso completamente quieto.','<b>Remo en barra T con apoyo</b> si tu gimnasio tiene esa versión.']
+  },
+  'Curl en banco inclinado':{
+    why:'Con el banco inclinado los brazos quedan detrás del cuerpo y el bíceps parte de máximo estiramiento. Los músculos crecen más cuando se cargan estirados, así que esta variante rinde más por serie que el curl de pie.',
+    alt:['<b>Curl en polea baja de espaldas a la máquina</b>, un brazo cada vez: mismo estiramiento con tensión constante.','<b>Curl predicador</b> (banco Scott) si prefieres trabajar la parte contraída.','<b>Curl con mancuernas de pie</b> 3 × 12 si no hay banco inclinado libre.']
+  },
+  'Encogimientos de trapecio':{
+    why:'El trapecio superior remata la silueta del cuello y los hombros, y da la impresión de un tren superior sólido incluso a peso corporal bajo. Es un músculo pequeño que responde rápido y necesita poco volumen.',
+    alt:['<b>Con barra</b> por delante o por detrás del cuerpo.','<b>En polea baja</b> con barra o cuerda.','<b>Paseo del granjero</b> con dos mancuernas pesadas, 3 × 40 m: trabaja trapecio y agarre a la vez.']
+  },
+  'Caminata continua':{
+    why:'Sumada al día, la caminata es lo que de verdad mueve tu balance calórico: unas 350-450 kcal sin generar apenas fatiga y sin impacto para la rodilla. Al mes son más calorías que todas tus sesiones de cardio en el gimnasio juntas.',
+    alt:['<b>Cinta en pendiente</b> 45 min al 6-8 % si llueve.','<b>Bicicleta</b> a ritmo suave 50 minutos.','<b>Repartir</b> en tres paseos de 15-20 min después de cada comida: mismo efecto y además mejora la glucosa postcomida.']
+  },
+  'Movilidad de cadera':{
+    why:'Una cadera rígida obliga a la rodilla a compensar en cada sentadilla y en cada paso. Casi todo el dolor de rodilla que no viene de un golpe empieza en la cadera o en el tobillo, no en la rodilla misma.',
+    alt:['<b>Estiramiento del corredor</b> en zancada profunda, 60 s por lado.','<b>Postura del pichón</b> si tienes experiencia, 60 s por lado.','<b>Círculos de cadera de pie</b> agarrado a una pared si el suelo te resulta incómodo.']
+  },
+  'Movilidad de tobillo':{
+    why:'Si el tobillo no dobla lo suficiente, al bajar en sentadilla el cuerpo busca el recorrido metiendo la rodilla hacia dentro. Es exactamente el movimiento que castiga tu ligamento lateral. Ganar 2 cm de dorsiflexión cambia tu sentadilla más que cualquier ejercicio de pierna.',
+    alt:['<b>Con una banda</b> alrededor del tobillo tirando hacia atrás mientras empujas la rodilla adelante.','<b>Estiramiento de gemelo en escalón</b>, 60 s por pierna.','<b>Sentadilla profunda sostenida</b> agarrado a algo, 60 s, dejando que los tobillos cedan.']
+  },
+  'Movilidad torácica':{
+    why:'La parte alta de la espalda se queda rígida de estar sentado, y eso empeora el press de banca, el press militar y la postura general. Además, cuando el tórax no rota, la rotación la busca la lumbar, que no está hecha para eso.',
+    alt:['<b>Rotaciones sentado</b> con un palo en los hombros, 2 × 15 por lado.','<b>Extensión sobre foam roller</b> colocado bajo la espalda alta, 2 × 10.','<b>Gato-camello</b> a cuatro apoyos, 2 × 12.']
+  },
+  'Rodillo de espuma':{
+    why:'No "rompe adherencias" ni nada parecido: lo que hace es reducir la percepción de dolor y mejorar temporalmente el rango de movimiento, y eso ya es suficiente para que el día siguiente entrenes mejor. Es una herramienta de sensación, no de estructura.',
+    alt:['<b>Pelota de tenis o lacrosse</b> para zonas pequeñas como el glúteo o la planta del pie.','<b>Automasaje con las manos</b> en cuádriceps y gemelo.','<b>Estiramientos suaves de 60 s</b> por grupo si no tienes rodillo.']
+  }
+};
+
+const WARMUP_PIERNA = {
+  name:'Activación y calentamiento de rodilla',
+  prescr:'8 min · innegociable',
+  cue:'<b>Bici estática 5 min</b> resistencia suave. <b>Paseo lateral con banda</b> 2×15 pasos por lado, banda por encima de las rodillas, sin dejar que se junten. <b>Puente de glúteo</b> 2×15. <b>Sentadilla sin peso</b> 2×10 controladas. La banda lateral activa el glúteo medio, que es el músculo que impide que la rodilla se vaya hacia dentro.',
+  link:'activación glúteo medio banda antes de pierna'
+};
+
+const WORKOUTS = {
+  pierna1:{
+    title:'Pierna 1 · Fuerza y cuádriceps',
+    tag:'red', dur:'70-75 min',
+    intro:'La sesión más pesada de la semana. Aquí es donde se protege el músculo mientras pierdes grasa. Sin cardio después.',
+    ex:[
+      WARMUP_PIERNA,
+      {name:'Prensa 45°',prescr:'4 × 8-10 · descanso 120 s',cue:'Pies a la anchura de los hombros en el centro de la plataforma. <b>Baja solo hasta 90° de rodilla</b>, no más las primeras 6 semanas. Rodillas apuntando en la misma dirección que los pies, nunca hacia dentro. No bloquees la rodilla arriba.',warn:'Este es tu ejercicio principal de fuerza en lugar de la sentadilla libre: la máquina te quita el trabajo de estabilización lateral que es justo lo que estresaría tu ligamento.'},
+      {name:'Sentadilla goblet con mancuerna',prescr:'3 × 10-12 · descanso 90 s',cue:'Mancuerna pegada al pecho, codos dentro de las rodillas. El peso en el pecho te obliga a mantener el torso vertical y reduce la carga en la rodilla frente a la sentadilla con barra. Baja hasta que los muslos estén paralelos, sin más.'},
+      {name:'Zancada estática en multipower',prescr:'3 × 10 por pierna · descanso 75 s',cue:'Pie adelantado fijo, <b>sin desplazarte</b>: solo subes y bajas en el sitio. La barra guiada elimina el balanceo lateral. Paso corto si notas la rodilla, paso largo si quieres más glúteo.',warn:'Si notas cualquier inestabilidad lateral, cámbialo por prensa a una pierna con recorrido corto.'},
+      {name:'Extensión de cuádriceps',prescr:'3 × 12-15 · descanso 60 s',cue:'Peso moderado, <b>2 segundos bajando</b>, aprieta 1 segundo arriba. Es el mejor ejercicio para el vasto medial, que es el estabilizador que suele quedarse débil después de una lesión de ligamento.'},
+      {name:'Curl femoral tumbado',prescr:'3 × 12 · descanso 60 s',cue:'Isquiotibiales fuertes = menos estrés en la rodilla, porque frenan el desplazamiento de la tibia. Control total en la bajada, sin dejar caer el peso.'},
+      {name:'Elevación de talones de pie',prescr:'4 × 15 · descanso 45 s',cue:'Rango completo: estira abajo 2 segundos, sube todo lo que puedas. El gemelo también participa en la estabilidad de la rodilla.'},
+      {name:'Plancha frontal',prescr:'3 × 40 s · descanso 45 s',cue:'Glúteo apretado, costillas hacia abajo, sin arquear la espalda. Un core fuerte es lo que evita que las piernas compensen mal.'}
+    ]
+  },
+  pierna2:{
+    title:'Pierna 2 · Cadena posterior y estabilidad',
+    tag:'red', dur:'65-70 min',
+    intro:'Menos rodilla, más cadera. Aquí construyes el blindaje: glúteo, isquios y control lateral. Nada de cardio después.',
+    ex:[
+      WARMUP_PIERNA,
+      {name:'Peso muerto rumano con barra o mancuernas',prescr:'4 × 10 · descanso 90 s',cue:'<b>Rodillas casi rectas pero no bloqueadas.</b> Lleva la cadera atrás como si cerraras un cajón con el culo. Baja hasta media espinilla o hasta donde notes el estiramiento en el isquio, no más. Espalda plana todo el rato.'},
+      {name:'Empuje de cadera (hip thrust)',prescr:'4 × 12 · descanso 90 s',cue:'Espalda apoyada en el banco a la altura de las escápulas. Sube hasta alinear tronco y muslos, <b>aprieta 1 segundo arriba</b>, barbilla al pecho. El glúteo mayor es el motor que descarga la rodilla.'},
+      {name:'Curl femoral sentado',prescr:'3 × 12-15 · descanso 60 s',cue:'Variante sentada porque estira más el isquio que la tumbada. Aprieta abajo, suelta despacio.'},
+      {name:'Prensa a una pierna',prescr:'3 × 10 por pierna · descanso 75 s',cue:'Recorrido corto y controlado. El trabajo unilateral corrige la asimetría que probablemente arrastras desde la lesión: casi todo el mundo carga menos la pierna lesionada sin darse cuenta.',warn:'Anota qué peso mueves con cada pierna. Si hay más de un 10 % de diferencia, empieza siempre por la pierna débil y iguala series.'},
+      {name:'Abducción de cadera en máquina',prescr:'3 × 15-20 · descanso 45 s',cue:'<b>El ejercicio más importante de tu plan para la rodilla.</b> Glúteo medio fuerte = la rodilla no colapsa hacia dentro. Inclina el torso ligeramente hacia delante y aprieta 1 segundo en la apertura máxima.'},
+      {name:'Subida a cajón bajo (30-35 cm)',prescr:'3 × 10 por pierna · descanso 60 s',cue:'Cajón bajo, <b>sin impulso del pie de abajo</b>. Sube empujando con el talón y baja controlado en 3 segundos. La bajada es donde se entrena el control excéntrico que protege la articulación.'},
+      {name:'Elevación de talones sentado',prescr:'3 × 15 · descanso 45 s',cue:'Sentado se trabaja más el sóleo. Rango completo.'},
+      {name:'Press Pallof en polea',prescr:'3 × 12 por lado · descanso 45 s',cue:'De pie de lado a la polea, extiende los brazos sin dejar que el tronco rote. Anti-rotación: entrena el core a resistir, que es lo que hace en la vida real.'}
+    ]
+  },
+  pechoTri:{
+    title:'Pecho y tríceps',
+    tag:'blue', dur:'60 min + 20 min cardio',
+    intro:'Volumen moderado, poco descanso, mucha tensión. Al terminar, 20-25 min de bici suave.',
+    ex:[
+      {name:'Calentamiento',prescr:'6 min',cue:'Remo o elíptica 4 min + rotaciones de hombro con banda 2×15 + 15 flexiones sin bajar del todo. El manguito rotador necesita entrar en calor antes de cualquier press.',link:'calentamiento hombro banda elástica antes de press'},
+      {name:'Press inclinado con mancuernas',prescr:'4 × 8-10 · descanso 90 s',cue:'Banco a 30°, no más. Codos a unos 45° del cuerpo, no abiertos en cruz. Baja hasta que las mancuernas queden a la altura del pecho, <b>2 segundos de bajada</b>. Empieza por el inclinado porque la parte superior del pectoral es la que más forma da al pecho.'},
+      {name:'Press banca plano con barra o máquina',prescr:'4 × 8-10 · descanso 90 s',cue:'Escápulas retraídas y hundidas, pies clavados en el suelo. La barra baja a la línea del pezón, no al cuello. Si entrenas solo, usa la máquina o multipower.'},
+      {name:'Aperturas en polea alta cruzada',prescr:'3 × 12-15 · descanso 60 s',cue:'Codos ligeramente flexionados y fijos, junta las manos por delante del abdomen y <b>cruza una sobre otra</b> 2-3 cm. Ahí es donde el pectoral termina de contraerse.'},
+      {name:'Fondos en paralelas asistidos o press declinado',prescr:'3 × 10-12 · descanso 75 s',cue:'Inclina el torso hacia delante para cargar pecho. Baja hasta que el hombro quede a la altura del codo, ni un centímetro más.'},
+      {name:'Extensión de tríceps en polea con cuerda',prescr:'3 × 12-15 · descanso 45 s',cue:'Codos pegados al costado, solo se mueve el antebrazo. Abre la cuerda al final del recorrido.'},
+      {name:'Press francés con barra Z',prescr:'3 × 12 · descanso 45 s',cue:'Codos apuntando al techo y quietos. Baja la barra hacia la frente o un poco por detrás. Es el que más trabaja la cabeza larga del tríceps, la que da grosor al brazo.'},
+      {name:'Cardio LISS',prescr:'20-25 min · bici o elíptica',cue:'Ritmo en el que puedas mantener una conversación con frases cortas. No corras: tu rodilla todavía no tiene ese permiso.'}
+    ]
+  },
+  espaldaBi:{
+    title:'Espalda y bíceps',
+    tag:'blue', dur:'60 min + 20 min cardio',
+    intro:'La espalda es lo que hace que la cintura parezca más estrecha. Prioriza sentir el dorsal, no mover peso.',
+    ex:[
+      {name:'Calentamiento',prescr:'6 min',cue:'Remo 4 min + dislocaciones de hombro con palo 2×12 + jalón muy ligero 2×15 para conectar el dorsal.',link:'movilidad hombro con palo dislocaciones'},
+      {name:'Jalón al pecho agarre ancho',prescr:'4 × 10 · descanso 90 s',cue:'Pecho arriba, ligera inclinación atrás. <b>Piensa en llevar los codos al bolsillo</b>, no en tirar con las manos. Baja hasta la clavícula, nunca por detrás de la nuca.'},
+      {name:'Remo en barra T o máquina',prescr:'4 × 10 · descanso 90 s',cue:'Espalda plana, tira hacia el ombligo, aprieta las escápulas 1 segundo. Sin balanceo de cadera para levantar más peso.'},
+      {name:'Remo unilateral con mancuerna',prescr:'3 × 10 por lado · descanso 75 s',cue:'Rodilla y mano apoyadas en el banco. Rango completo: deja que la escápula se estire abajo y luego tira. La versión a un brazo permite más recorrido que cualquier remo bilateral.'},
+      {name:'Pullover en polea alta',prescr:'3 × 15 · descanso 60 s',cue:'Brazos casi rectos, lleva la barra desde arriba hasta los muslos en arco. Aísla el dorsal sin que los bíceps se lleven el trabajo.'},
+      {name:'Face pull en polea',prescr:'3 × 15-20 · descanso 45 s',cue:'Cuerda a la altura de la cara, tira separando las manos hacia las orejas. Es el mejor seguro contra la lesión de hombro y corrige la postura adelantada.'},
+      {name:'Curl con barra Z',prescr:'3 × 10-12 · descanso 45 s',cue:'Codos pegados al cuerpo, sin usar la espalda. Baja en 2 segundos.'},
+      {name:'Curl martillo',prescr:'3 × 12 · descanso 45 s',cue:'Agarre neutro. Trabaja el braquial, que es el músculo que empuja al bíceps hacia arriba y hace el brazo más grueso.'},
+      {name:'Cardio LISS',prescr:'20-25 min · bici o elíptica',cue:'Mismo ritmo conversacional. Aprovecha para poner un podcast y que no se te haga eterno.'}
+    ]
+  },
+  pechoHombro:{
+    title:'Pecho y hombro',
+    tag:'blue', dur:'60 min + 20 min cardio',
+    intro:'Segunda dosis de empuje de la semana, con más protagonismo del deltoides. Hombros anchos + cintura estrecha es la ecuación visual que buscas.',
+    ex:[
+      {name:'Calentamiento',prescr:'6 min',cue:'Elíptica 4 min + rotación externa con banda 2×15 por lado + elevaciones laterales muy ligeras 2×20.',link:'rotación externa hombro banda elástica'},
+      {name:'Press banca plano con mancuernas',prescr:'4 × 8-10 · descanso 90 s',cue:'Las mancuernas permiten más rango que la barra y corrigen desequilibrios entre lados. Baja hasta notar el estiramiento en el pecho, sin rebotar.'},
+      {name:'Press militar sentado con mancuernas',prescr:'4 × 10 · descanso 90 s',cue:'Respaldo casi vertical, core apretado, sin arquear la lumbar. Sube hasta casi juntar las mancuernas, sin chocarlas.'},
+      {name:'Cruce de poleas de abajo hacia arriba',prescr:'3 × 15 · descanso 60 s',cue:'Poleas abajo, junta las manos a la altura de la barbilla. Ataca la parte superior del pectoral desde otro ángulo.'},
+      {name:'Elevaciones laterales',prescr:'4 × 15 · descanso 45 s',cue:'Peso ligero, <b>sube solo hasta la altura del hombro</b>, meñique ligeramente más alto que el pulgar. En la última serie haz una reducción de peso: llega al fallo, baja el peso a la mitad y sigue.'},
+      {name:'Pájaros en polea o máquina',prescr:'3 × 15 · descanso 45 s',cue:'Deltoides posterior. Casi todo el mundo lo tiene débil y es lo que da profundidad al hombro visto de lado.'},
+      {name:'Fondos en máquina',prescr:'3 × 10 · descanso 60 s',cue:'Torso más vertical que en el día de pecho, para que el tríceps se lleve más trabajo.'},
+      {name:'Cardio LISS',prescr:'20-25 min · bici o elíptica',cue:'Cierra con esto. No lo saltes: son unas 800-900 kcal al mes.'}
+    ]
+  },
+  espaldaHombro:{
+    title:'Espalda y hombro posterior',
+    tag:'blue', dur:'60 min + 20 min cardio',
+    intro:'Anchura y postura. Aquí se corrige la espalda que se encorva de estar sentado y se construye la V.',
+    ex:[
+      {name:'Calentamiento',prescr:'6 min',cue:'Remo 4 min + movilidad torácica en el suelo 2×10 por lado + face pull ligero 2×20.',link:'movilidad torácica ejercicio suelo'},
+      {name:'Dominadas asistidas o jalón agarre supino',prescr:'4 × 8-10 · descanso 90 s',cue:'Si haces dominadas asistidas, elige una asistencia que te deje llegar a 8 con esfuerzo real. Barbilla por encima de la barra, baja controlado hasta estirar del todo.'},
+      {name:'Remo en polea baja agarre estrecho',prescr:'4 × 12 · descanso 90 s',cue:'Torso quieto, tira hacia el abdomen bajo. Al final del recorrido saca pecho como si quisieras enseñarlo.'},
+      {name:'Remo en máquina con apoyo en el pecho',prescr:'3 × 12 · descanso 75 s',cue:'El apoyo elimina la trampa del balanceo, así que todo el trabajo va a la espalda. Ideal para acumular volumen sin cargar la lumbar.'},
+      {name:'Face pull',prescr:'3 × 20 · descanso 45 s',cue:'Series largas y ligeras. Es salud de hombro y postura, no un ejercicio de fuerza.'},
+      {name:'Elevaciones laterales',prescr:'4 × 15 · descanso 45 s',cue:'Segunda dosis semanal de deltoides medial. El hombro aguanta mucha frecuencia.'},
+      {name:'Curl en banco inclinado',prescr:'3 × 12 · descanso 45 s',cue:'Banco a 45°, brazos colgando detrás del cuerpo. Máximo estiramiento del bíceps, que es donde más se crece.'},
+      {name:'Encogimientos de trapecio',prescr:'3 × 15 · descanso 45 s',cue:'Sube recto, aprieta arriba 1 segundo. Nada de rotar los hombros.'},
+      {name:'Cardio LISS',prescr:'20-25 min · bici o elíptica',cue:'Última sesión de cardio de la semana laboral.'}
+    ]
+  },
+  activa:{
+    title:'Recuperación activa',
+    tag:'green', dur:'45-60 min',
+    intro:'Sábado sin gimnasio. No es un día perdido: es el que hace que los otros cinco funcionen. Ayer entrenaste pierna, así que hoy la rodilla y el sistema nervioso se reparan. Solo caminar y movilidad.',
+    ex:[
+      {name:'Caminata continua',prescr:'45-60 min · ritmo cómodo',cue:'Al aire libre si puedes. Suma unas 350-450 kcal sin generar fatiga y activa el riego en las piernas, que acelera la recuperación.'},
+      {name:'Movilidad de cadera',prescr:'3 ejercicios × 8 por lado',cue:'Estiramiento del psoas en zancada, "90/90" sentado en el suelo, y círculos de cadera a cuatro apoyos. La cadera rígida obliga a la rodilla a compensar: casi todo el dolor de rodilla empieza arriba.',link:'movilidad de cadera 90 90 psoas rutina'},
+      {name:'Movilidad de tobillo',prescr:'2 × 10 por lado',cue:'De rodillas frente a la pared, lleva la rodilla hacia la pared sin levantar el talón. Un tobillo rígido te hace meter la rodilla hacia dentro al sentarte: exactamente lo que quieres evitar.',link:'movilidad de tobillo test pared dorsiflexión'},
+      {name:'Movilidad torácica',prescr:'2 × 10 por lado',cue:'Rotaciones tumbado de lado con brazo extendido. Mejora el press y la postura.'},
+      {name:'Rodillo de espuma',prescr:'8 min',cue:'Cuádriceps, banda iliotibial (suave), glúteo y gemelos. <b>Evita pasar el rodillo justo sobre la cara externa de la rodilla</b>, donde está tu ligamento.'},
+      {name:'Respiración y bajada',prescr:'5 min',cue:'Tumbado, 4 segundos inspirando por la nariz, 6 exhalando. Baja el cortisol, y el cortisol alto crónico es lo que hace que la grasa abdominal se resista.'}
+    ]
+  },
+  descanso:{
+    title:'Descanso total',
+    tag:'green', dur:'0 min de gimnasio',
+    intro:'Domingo de descanso total. El músculo no crece en el gimnasio, crece los días como hoy. Come tu plan de descanso, prepara los táperes de la semana y duerme bien.',
+    ex:[
+      {name:'Pasos',prescr:'8.000-10.000',cue:'Camina, haz tus cosas, muévete. Pero nada estructurado.'},
+      {name:'Preparación de comida',prescr:'60-90 min',cue:'Cocina el pollo y el arroz de los tres primeros días de la semana. <b>El domingo que no cocinas es el miércoles que pides comida a domicilio.</b> Este es probablemente el hábito que más va a decidir tu resultado.'},
+      {name:'Medición semanal',prescr:'5 min',cue:'Pésate, mide la cintura a la altura del ombligo, hazte la foto de frente y de perfil con la misma luz. Anótalo todo en la pestaña Registro.'},
+      {name:'Sueño',prescr:'7-9 h',cue:'Si solo pudieras arreglar una cosa de tu estilo de vida para perder grasa, sería esta.'}
+    ]
+  }
+};
+
+const SPLIT = {
+  A:{1:'pechoTri',2:'pierna1',3:'espaldaBi',4:'pechoHombro',5:'pierna2',6:'activa',0:'descanso'},
+  B:{1:'espaldaBi',2:'pierna1',3:'pechoHombro',4:'espaldaHombro',5:'pierna2',6:'activa',0:'descanso'}
+};
+const DAYNAMES = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const DAYSHORT = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+
+const dietOf = k => (k==='pierna1'||k==='pierna2') ? 'pierna' : (k==='activa'?'activa':(k==='descanso'?'descanso':'torso'));
+
+/* ---------- PLANES DE COMIDA ---------- */
+const DIETS = {
+  pierna:{
+    label:'Día de pierna', tag:'red', kcal:2250, p:185, c:250, f:58,
+    why:'Es tu día de más trabajo mecánico. Subimos el carbohidrato unos 30 g respecto a los días de torso para llenar el glucógeno del cuádriceps y del glúteo, que es literalmente el combustible de la prensa. Comer más hoy no frena la pérdida de grasa, porque la media semanal sigue en déficit.',
+    meals:[
+      {t:'07:30',n:'Desayuno',k:'≈ 470 kcal · 32 g proteína',
+       items:['60 g de avena en hojuelas cocida con 250 ml de leche desnatada o bebida de soja sin azúcar','2 huevos enteros + 3 claras revueltos','100 g de fresas o medio plátano','Café solo o té verde'],
+       how:'Cuece la avena 3 minutos con canela. Los huevos, en sartén antiadherente con espray de aceite, nunca con aceite libre: son 90 kcal que no notas y que te sobran.'},
+      {t:'10:30',n:'Media mañana',k:'≈ 280 kcal · 25 g proteína',
+       items:['200 g de yogur griego 0 %','1 manzana o 1 pera','12 g de almendras (unas 10 unidades)'],
+       how:'Cuenta las almendras. Un puñado "a ojo" son 30 g y 180 kcal en lugar de 70.'},
+      {t:'13:30',n:'Comida',k:'≈ 640 kcal · 58 g proteína',
+       items:['180 g de pechuga de pollo o pavo (peso en crudo)','220 g de arroz cocido, que son unos 75 g en crudo','Ensalada grande: lechuga, tomate, pepino, zanahoria, cebolla','10 ml de aceite de oliva virgen extra + vinagre'],
+       how:'Sella el pollo 3 minutos por cara a fuego fuerte y luego baja el fuego 4 minutos más. Adóbalo con ajo en polvo, pimentón, orégano y limón: cero calorías y deja de saber a cartón. Mide el aceite con cuchara, no lo eches del bote.'},
+      {t:'15:15',n:'Pre-entreno',k:'≈ 250 kcal · 22 g proteína',
+       items:['1 plátano mediano','25 g de proteína en polvo en 300 ml de agua','500 ml de agua con una pizca de sal'],
+       how:'Tómalo entre 90 minutos y 2 horas antes de entrenar, así llegas a las 16-17 h con energía disponible y sin el estómago lleno. Si prefieres comida real: 2 rebanadas de pan integral con 80 g de pavo.'},
+      {t:'18:45',n:'Cena post-entreno',k:'≈ 620 kcal · 48 g proteína',
+       items:['200 g de pescado blanco (merluza, bacalao, lubina) o 170 g de ternera magra','250 g de boniato o patata, al horno o cocida','200 g de verdura salteada: brócoli, calabacín, pimiento','8 ml de aceite de oliva'],
+       how:'Come dentro de la hora y media siguiente al entreno. Al horno a 200° durante 25 minutos con romero, sale mejor y no ensucia nada. El boniato de hoy tiene sentido justo aquí: es cuando el músculo está más receptivo al carbohidrato.'},
+      {t:'21:30',n:'Antes de dormir',k:'≈ 230 kcal · 28 g proteína',
+       items:['200 g de queso batido o requesón 0 %','15 g de crema de cacahuete sin azúcar','Canela y un chorrito de edulcorante si te apetece'],
+       how:'La proteína de digestión lenta antes de dormir reduce la pérdida de músculo durante las 8 horas de ayuno nocturno. Además te quita el picoteo de la noche, que es donde se rompen casi todos los planes.'}
+    ]
+  },
+  torso:{
+    label:'Día de torso', tag:'blue', kcal:2150, p:185, c:220, f:60,
+    why:'Entrenas fuerte pero mueves menos masa muscular que en pierna, y encima añades 20-25 minutos de cardio. Bajamos ligeramente el carbohidrato y mantenemos la proteína intacta.',
+    meals:[
+      {t:'07:30',n:'Desayuno',k:'≈ 440 kcal · 32 g proteína',
+       items:['50 g de avena cocida con 250 ml de leche desnatada','2 huevos enteros + 3 claras','100 g de arándanos o fresas','Café solo'],
+       how:'Idéntico al día de pierna pero con 10 g menos de avena. Parece poco: son 3.500 kcal al año.'},
+      {t:'10:30',n:'Media mañana',k:'≈ 265 kcal · 24 g proteína',
+       items:['200 g de yogur griego 0 %','1 pieza de fruta','10 g de nueces'],
+       how:'Si vas con prisa: un batido de 30 g de proteína con agua y una fruta. Cumple lo mismo.'},
+      {t:'13:30',n:'Comida',k:'≈ 610 kcal · 57 g proteína',
+       items:['180 g de pollo, pavo o 200 g de pescado','180 g de arroz o 220 g de patata cocida','Ensalada o verdura sin límite','10 ml de aceite de oliva'],
+       how:'Cocina 4 raciones el domingo y guárdalas en táperes. El arroz aguanta 4 días en nevera y, al enfriarse, genera almidón resistente, que alimenta a tu microbiota y sube menos la glucosa.'},
+      {t:'15:15',n:'Pre-entreno',k:'≈ 235 kcal · 21 g proteína',
+       items:['25 g de proteína en polvo','1 plátano pequeño o 2 tortitas de arroz con miel','Café si lo necesitas (último del día)'],
+       how:'Entrenar con el estómago vacío a las 17 h después de comer a las 13:30 es la receta para una sesión floja. Esta comida es la que decide si el entreno rinde.'},
+      {t:'19:00',n:'Cena post-entreno',k:'≈ 590 kcal · 46 g proteína',
+       items:['200 g de pescado blanco o 170 g de pollo o 4 huevos + 3 claras','200 g de patata o 150 g de pasta integral cocida','Verdura salteada abundante','8 ml de aceite de oliva'],
+       how:'Después del cardio tienes hambre real. Empieza por la verdura y la proteína: llegas al carbohidrato ya medio saciado y no te pasas.'},
+      {t:'21:45',n:'Antes de dormir',k:'≈ 215 kcal · 27 g proteína',
+       items:['200 g de queso batido 0 % o 30 g de caseína','12 g de crema de cacahuete'],
+       how:'Si te cuesta dormir, sustituye la crema de cacahuete por una infusión de manzanilla o valeriana y añade 200 mg de magnesio.'}
+    ]
+  },
+  activa:{
+    label:'Recuperación activa', tag:'green', kcal:1850, p:180, c:145, f:58,
+    why:'Hoy no levantas peso, así que no necesitas tanto carbohidrato. Recortamos ahí y mantenemos alta la proteína, que es lo que protege el músculo. Este día y el domingo son los que hacen que la media semanal caiga donde debe.',
+    meals:[
+      {t:'08:00',n:'Desayuno',k:'≈ 370 kcal · 33 g proteína',
+       items:['3 huevos enteros + 3 claras en tortilla con espinacas y champiñones','30 g de avena o 1 rebanada de pan integral','Café solo'],
+       how:'Menos avena, más volumen de verdura en la tortilla. Comes lo mismo en el plato con 100 kcal menos.'},
+      {t:'11:00',n:'Media mañana',k:'≈ 240 kcal · 26 g proteína',
+       items:['200 g de yogur griego 0 %','10 g de almendras','Canela'],
+       how:'Hoy sin fruta aquí: ese carbohidrato lo guardamos para la comida principal.'},
+      {t:'13:30',n:'Comida',k:'≈ 570 kcal · 58 g proteína',
+       items:['200 g de pollo o pavo','150 g de arroz cocido','Ensalada grande + 10 ml de aceite de oliva'],
+       how:'Come antes de la caminata si sales por la tarde, o después si prefieres caminar en ayunas: da igual, lo que cuenta es el total del día.'},
+      {t:'17:00',n:'Merienda',k:'≈ 230 kcal · 30 g proteína',
+       items:['30 g de proteína en polvo con agua','Crudités de zanahoria y pepino','o 150 g de pavo en lonchas'],
+       how:'Después de la caminata. Volumen alto, calorías bajas: es lo que necesitas en un día sin pesas.'},
+      {t:'20:30',n:'Cena',k:'≈ 440 kcal · 45 g proteína',
+       items:['200 g de pescado blanco o 170 g de pollo','300 g de verdura al horno o salteada','120 g de patata cocida','8 ml de aceite de oliva'],
+       how:'Cena más ligera y más temprana de lo normal, porque hoy no has entrenado a las 17 h. Llegas mejor a la cama.'},
+      {t:'22:00',n:'Antes de dormir',k:'≈ 190 kcal · 25 g proteína',
+       items:['200 g de queso batido 0 %','10 g de crema de cacahuete'],
+       how:'Mismo cierre de siempre. La constancia en esta comida es lo que evita el asalto a la nevera.'}
+    ]
+  },
+  descanso:{
+    label:'Descanso total', tag:'green', kcal:1750, p:180, c:130, f:55,
+    why:'El día de menos calorías de la semana porque es el de menos gasto. Fíjate en que la proteína sigue en 180 g: en descanso es cuando el músculo se repara, así que recortarla hoy sería el peor error posible.',
+    meals:[
+      {t:'09:00',n:'Desayuno tardío',k:'≈ 400 kcal · 36 g proteína',
+       items:['4 huevos enteros + 2 claras revueltos con verduras','1 rebanada de pan integral','Café solo o té'],
+       how:'Domingo, sin prisa. Desayuna un poco más tarde y así te quedan solo cuatro comidas: se lleva mejor un día de menos calorías.'},
+      {t:'12:30',n:'Media mañana',k:'≈ 250 kcal · 27 g proteína',
+       items:['200 g de yogur griego 0 % con 1 fruta pequeña'],
+       how:'Ligero, porque la comida principal está cerca.'},
+      {t:'14:30',n:'Comida',k:'≈ 560 kcal · 56 g proteína',
+       items:['200 g de carne magra, pollo o pescado','120 g de arroz cocido o 150 g de legumbre cocida','Ensalada abundante + 10 ml de aceite de oliva'],
+       how:'Si tienes comida familiar, este es tu momento: prioriza la proteína del plato, la mitad del plato de verdura y una ración normal del carbohidrato. Sin postre calórico.'},
+      {t:'18:00',n:'Merienda',k:'≈ 200 kcal · 28 g proteína',
+       items:['30 g de proteína en polvo','o 200 g de requesón con canela'],
+       how:'Justo cuando cocinas los táperes de la semana. Comer aquí evita que piques mientras preparas la comida.'},
+      {t:'21:00',n:'Cena',k:'≈ 340 kcal · 33 g proteína',
+       items:['180 g de pescado blanco o pollo','350 g de verdura al horno o crema de verduras','5 ml de aceite de oliva'],
+       how:'Cena sin carbohidrato de guarnición. Es el único día que lo hacemos, y solo porque mañana vuelve el gimnasio.'}
+    ]
+  }
+};
+
+/* ---------- ALTERNATIVAS PARA CADA COMIDA ---------- */
+function slotOf(n){
+  if(n.indexOf('Desayuno')===0) return 'desayuno';
+  if(n==='Media mañana') return 'media';
+  if(n==='Comida') return 'comida';
+  if(n==='Pre-entreno') return 'pre';
+  if(n.indexOf('Cena')===0) return 'cena';
+  if(n==='Antes de dormir') return 'noche';
+  if(n==='Merienda') return 'merienda';
+  return null;
+}
+const MEAL_ALTS = {
+  desayuno:{
+    rule:'Todas estas opciones rondan las 400-470 kcal con 30-36 g de proteína. Lo que las hace intercambiables es que respetan la misma estructura: una fuente de proteína completa, una de carbohidrato de digestión lenta y algo de fruta o verdura. Cambia el alimento, no la estructura.',
+    opts:[
+      {n:'Opción 1 · La del plan',items:['Avena cocida con leche desnatada','2 huevos enteros + 3 claras revueltos','Fruta roja o medio plátano'],note:'La más equilibrada y la que mejor te sostiene hasta media mañana. Empieza por esta.'},
+      {n:'Opción 2 · Tortilla y pan',items:['Tortilla de 3 huevos + 3 claras con tomate, cebolla y espinacas','2 rebanadas de pan integral (60 g)','1 pieza de fruta'],note:'Misma proteína, el carbohidrato viene del pan en vez de la avena. Más saciante si te cansa la avena todos los días.'},
+      {n:'Opción 3 · Rápida',items:['Batido: 30 g de proteína + 250 ml de leche desnatada + 1 plátano + 40 g de avena cruda','1 puñado pequeño de nueces (10 g)'],note:'Para los días que sales con el tiempo justo. Se hace en 90 segundos y cuadra igual.'},
+      {n:'Opción 4 · Salada sin huevo',items:['200 g de queso fresco batido 0 % o requesón','2 tostadas integrales con tomate rallado y 80 g de pavo o atún','5 ml de aceite de oliva'],note:'Útil si ya vas a comer huevo en la cena. Alternar fuentes de proteína es mejor que repetir siempre la misma.'}
+    ]
+  },
+  media:{
+    rule:'Aquí solo buscas 24-27 g de proteína y llegar sin hambre a la comida. Unas 250-280 kcal. Es la comida más fácil de intercambiar: cualquier lácteo alto en proteína o un batido cumple.',
+    opts:[
+      {n:'Opción 1 · La del plan',items:['200 g de yogur griego 0 %','1 pieza de fruta','10-12 g de frutos secos'],note:'Cuenta los frutos secos en unidades, no a puñados: ahí se escapan 100 kcal sin enterarte.'},
+      {n:'Opción 2 · Salada',items:['100 g de pavo o pollo en lonchas','1 tostada integral o 2 tortitas de arroz','Tomate, pepino o zanahoria en crudo'],note:'Si por la mañana prefieres salado. Menos grasa que la opción 1, así que puedes añadir 5 g de aceite.'},
+      {n:'Opción 3 · Atún o conserva',items:['1 lata de atún al natural escurrida (o 2 de mejillones)','1 tostada integral','Tomate'],note:'Barata, se lleva a cualquier sitio y no necesita nevera. Alterna atún con caballa o sardinas por el omega 3.'},
+      {n:'Opción 4 · Líquida',items:['30 g de proteína en polvo con agua o leche desnatada','1 fruta'],note:'La menos saciante de las cuatro, pero cumple los macros. Úsala los días de mucha prisa, no como norma.'}
+    ]
+  },
+  comida:{
+    rule:'La estructura del plato es lo que no cambia: <b>1 palma y media de proteína + 1 puño de carbohidrato + medio plato de verdura + 1 cucharada de aceite.</b> Con esa regla puedes construir infinitas comidas sin pesar nada y quedarte muy cerca de los 55-58 g de proteína y las 570-640 kcal.',
+    opts:[
+      {n:'Opción 1 · Pollo y arroz',items:['180 g de pollo o pavo a la plancha','200 g de arroz cocido','Ensalada grande + 10 ml de aceite de oliva'],note:'El clásico por una razón: es barato, se cocina en tandas y aguanta 4 días en nevera.'},
+      {n:'Opción 2 · Legumbre completa',items:['250 g de lentejas o garbanzos cocidos','120 g de pollo, atún o 2 huevos duros dentro','Verduras en el guiso + 10 ml de aceite'],note:'La legumbre lleva proteína y carbohidrato a la vez, pero su proteína es incompleta: por eso se le añade una fuente animal. Es la opción con más fibra y la que mejor te sacia.'},
+      {n:'Opción 3 · Pescado y patata',items:['220 g de pescado blanco al horno','300 g de patata cocida o al horno','Verdura asada + 10 ml de aceite'],note:'La más ligera de digerir y la mejor si comes justo antes de entrenar. El pescado blanco tiene casi cero grasa, así que puedes ser generoso con el aceite.'},
+      {n:'Opción 4 · Ternera y pasta',items:['150 g de ternera magra o carne picada 5 % de grasa','180 g de pasta integral cocida','Salsa de tomate natural + verduras + 5 ml de aceite'],note:'La ternera lleva más grasa que el pollo, así que baja el aceite a la mitad. Una o dos veces por semana, por el hierro.'},
+      {n:'Opción 5 · Bol frío',items:['200 g de pollo desmenuzado o 2 latas de atún','200 g de quinoa o arroz cocido y frío','Tomate, maíz (poco), aguacate 1/4, pepino, cilantro','5 ml de aceite y limón'],note:'Para llevar al trabajo sin necesidad de calentar. El aguacate ya aporta grasa, por eso baja el aceite.'}
+    ]
+  },
+  pre:{
+    rule:'Esta comida tiene un solo objetivo: llegar a las 16-17 h con energía y el estómago vacío. Por eso <b>mucho carbohidrato, proteína media y grasa casi cero</b>: la grasa retrasa el vaciado gástrico y te hace entrenar pesado. Unas 235-250 kcal, 21-22 g de proteína, 30-40 g de carbohidrato.',
+    opts:[
+      {n:'Opción 1 · La del plan',items:['1 plátano mediano','25 g de proteína en polvo en 300 ml de agua'],note:'Se digiere en 60-90 minutos y no te deja pesado. La referencia.'},
+      {n:'Opción 2 · Comida real',items:['2 rebanadas de pan integral','80-100 g de pavo o jamón cocido extra','Tomate rallado'],note:'Si el batido no te sienta bien. Tómalo 2 horas antes del entreno, no 1.'},
+      {n:'Opción 3 · Dulce',items:['2 tortitas de arroz con 15 g de mermelada sin azúcar','200 g de yogur griego 0 %'],note:'Carbohidrato de absorción rápida. Buena opción cuando llegas justo de tiempo al gimnasio.'},
+      {n:'Opción 4 · Fruta y lácteo',items:['1 plátano + 100 g de fresas','200 g de queso batido 0 %','Canela'],note:'La más ligera. Si algún día entrenas a las 16 h en punto y comiste tarde, esta es la que menos te va a pesar.'}
+    ]
+  },
+  cena:{
+    rule:'Es la comida más importante del día para no perder músculo, porque llega justo después de entrenar. Objetivo: <b>45-48 g de proteína</b> sí o sí, más carbohidrato para reponer y verdura sin límite. Entre 590 y 620 kcal.',
+    opts:[
+      {n:'Opción 1 · Pescado y boniato',items:['200 g de pescado blanco al horno','250 g de boniato o patata (200 g los días de torso)','Verdura salteada + 8 ml de aceite'],note:'La opción con menos grasa, así que es la que más margen deja para el aceite y las salsas.'},
+      {n:'Opción 2 · Tortilla completa',items:['Tortilla de 3 huevos enteros + 6 claras con tomate, cebolla y pimiento','200 g de patata al horno','Ensalada + 8 ml de aceite'],note:'41 g de proteína del huevo. Ojo: con 3 huevos solos te quedas en 19 g, la mitad de lo que necesitas. Las claras no son opcionales aquí.'},
+      {n:'Opción 3 · Salmón',items:['170 g de salmón a la plancha','180 g de patata o 150 g de arroz','Verdura al vapor · sin aceite añadido'],note:'Hazla dos veces por semana. El salmón ya trae 18 g de grasa, por eso se quita el aceite. Su omega 3 es lo que más ayuda a la recuperación de tu rodilla.'},
+      {n:'Opción 4 · Pollo al curry',items:['180 g de pollo en dados','150 g de arroz basmati cocido','Leche de coco ligera 50 ml + curry + verduras','Sin aceite añadido'],note:'Para cuando te cansa la plancha. La leche de coco aporta la grasa del día, así que no añadas aceite.'},
+      {n:'Opción 5 · Vegetariana',items:['220 g de tofu firme o tempeh marinado y a la plancha','25 g de proteína en polvo o 100 g de edamame','200 g de patata','Verduras salteadas + 8 ml de aceite'],note:'Llegar a 45 g de proteína solo con vegetales cuesta: por eso lleva el refuerzo del batido o el edamame.'}
+    ]
+  },
+  noche:{
+    rule:'Proteína de digestión lenta antes de dormir para cubrir las 8 horas de ayuno nocturno. Unas 190-230 kcal y 25-28 g de proteína. También cumple una función psicológica: te quita el picoteo de la noche, que es donde se rompen la mayoría de los planes.',
+    opts:[
+      {n:'Opción 1 · La del plan',items:['200 g de queso batido o requesón 0 %','12-15 g de crema de cacahuete','Canela y edulcorante'],note:'La caseína del lácteo se digiere en 6-7 horas. Es exactamente lo que buscas a esta hora.'},
+      {n:'Opción 2 · Yogur y semillas',items:['200 g de yogur griego 0 %','10 g de semillas de chía o lino molido','Canela'],note:'La chía absorbe agua y aumenta el volumen: si te acuestas con hambre, esta es la mejor.'},
+      {n:'Opción 3 · Batido de caseína',items:['30 g de caseína o proteína en polvo con 200 ml de leche desnatada'],note:'La más cómoda si cenas tarde y no te apetece nada sólido.'},
+      {n:'Opción 4 · Sin lácteos',items:['150 g de pavo o pollo frío','1 puñado de nueces (10 g)','o 3 claras cocidas + 1 huevo entero'],note:'Si los lácteos te sientan mal por la noche. La proteína de la carne también se digiere despacio.'}
+    ]
+  },
+  merienda:{
+    rule:'Los días sin pesas no necesitas carbohidrato aquí, así que esta comida es proteína y volumen: mucha cantidad en el plato con pocas calorías. Entre 200 y 230 kcal y unos 28-30 g de proteína.',
+    opts:[
+      {n:'Opción 1 · La del plan',items:['30 g de proteína en polvo con agua','Crudités de zanahoria, pepino y apio'],note:'Máximo volumen, mínimas calorías. Perfecta para un día de menos gasto.'},
+      {n:'Opción 2 · Tortilla',items:['Tortilla de 2 huevos enteros + 3 claras con tomate y cebolla'],note:'Encaja perfecta aquí, porque hoy no entrenas después y la grasa del huevo no te va a molestar en ninguna sesión.'},
+      {n:'Opción 3 · Fiambre',items:['150 g de pavo en lonchas','Pepinillos, tomate cherry y pimiento en crudo'],note:'Cero preparación. Vigila el fiambre: elige el que tenga más del 85 % de carne en la etiqueta.'},
+      {n:'Opción 4 · Requesón salado',items:['200 g de requesón 0 %','Tomate, orégano, pimienta y un chorro de limón'],note:'El requesón salado sorprende: sacia más que el dulce y corta el antojo de picoteo.'}
+    ]
+  }
+};
+
+/* ============================================================
+   ESTADO Y ALMACENAMIENTO
+   ============================================================ */
+let LOGS = {};
+let PHOTOS = {};
+let STORAGE_OK = null;
+let USER_ACTED = false;
+const KEY = 'plan8773:data';
+const OLD_KEY = 'plan8773:logs';
+const photoKey = d => 'plan8773:fotos:' + d;
+
+/* ============================================================
+   ALMACEN MULTICAPA
+   La version anterior solo usaba window.storage, que existe
+   unicamente dentro de la ventana de Claude. Al abrir el archivo
+   guardado en el movil esa funcion no existe y TODO se perdia.
+   Ahora se escribe en todas las capas disponibles a la vez.
+   ============================================================ */
+let BACKENDS = [];
+let IDB = null;
+const MEM = {};
+
+function idbOpen(){
+  return new Promise(res=>{
+    try{
+      if(!self.indexedDB) return res(null);
+      const rq = indexedDB.open('plan8773', 1);
+      rq.onupgradeneeded = () => { rq.result.createObjectStore('kv'); };
+      rq.onsuccess = () => res(rq.result);
+      rq.onerror = () => res(null);
+      setTimeout(()=>res(null), 2500);
+    }catch(e){ res(null); }
+  });
+}
+function idbGet(k){
+  return new Promise(res=>{
+    if(!IDB) return res(null);
+    try{
+      const rq = IDB.transaction('kv','readonly').objectStore('kv').get(k);
+      rq.onsuccess = () => res(rq.result ?? null);
+      rq.onerror = () => res(null);
+    }catch(e){ res(null); }
+  });
+}
+function idbSet(k,v){
+  return new Promise(res=>{
+    if(!IDB) return res(false);
+    try{
+      const tx = IDB.transaction('kv','readwrite');
+      tx.objectStore('kv').put(v,k);
+      tx.oncomplete = () => res(true);
+      tx.onerror = () => res(false);
+    }catch(e){ res(false); }
+  });
+}
+function idbDel(k){
+  return new Promise(res=>{
+    if(!IDB) return res(false);
+    try{
+      const tx = IDB.transaction('kv','readwrite');
+      tx.objectStore('kv').delete(k);
+      tx.oncomplete = () => res(true);
+      tx.onerror = () => res(false);
+    }catch(e){ res(false); }
+  });
+}
+
+let INIT_DONE = null;
+const DB = {
+  init(){ return INIT_DONE || (INIT_DONE = DB._init()); },
+  async _init(){
+    BACKENDS = [];
+    // 1. window.storage (solo dentro de Claude)
+    try{
+      if(typeof window !== 'undefined' && window.storage && typeof window.storage.set === 'function'){
+        await window.storage.set('plan8773:test','1');
+        const r = await window.storage.get('plan8773:test');
+        if(r && r.value === '1') BACKENDS.push('claude');
+      }
+    }catch(e){}
+    // 2. localStorage (navegador normal, archivo local, PWA)
+    try{
+      localStorage.setItem('plan8773:test','1');
+      if(localStorage.getItem('plan8773:test') === '1'){ BACKENDS.push('local'); localStorage.removeItem('plan8773:test'); }
+    }catch(e){}
+    // 3. IndexedDB (mas capacidad, sobrevive mejor en movil)
+    IDB = await idbOpen();
+    if(IDB){
+      const ok = await idbSet('plan8773:test','1');
+      if(ok && await idbGet('plan8773:test') === '1'){ BACKENDS.push('idb'); await idbDel('plan8773:test'); }
+    }
+    return BACKENDS.length;
+  },
+  async get(k){
+    // se lee de la capa que tenga datos, priorizando la mas fiable
+    if(BACKENDS.includes('idb')){ const v = await idbGet(k); if(v) return v; }
+    if(BACKENDS.includes('local')){ try{ const v = localStorage.getItem(k); if(v) return v; }catch(e){} }
+    if(BACKENDS.includes('claude')){ try{ const r = await window.storage.get(k); if(r && r.value) return r.value; }catch(e){} }
+    return MEM[k] || null;
+  },
+  async set(k,v){
+    let ok = false;
+    MEM[k] = v;
+    if(BACKENDS.includes('idb')){ if(await idbSet(k,v)) ok = true; }
+    if(BACKENDS.includes('local')){ try{ localStorage.setItem(k,v); ok = true; }catch(e){} }
+    if(BACKENDS.includes('claude')){ try{ await window.storage.set(k,v); ok = true; }catch(e){} }
+    return ok;
+  },
+  async del(k){
+    delete MEM[k];
+    if(BACKENDS.includes('idb')) await idbDel(k);
+    if(BACKENDS.includes('local')){ try{ localStorage.removeItem(k); }catch(e){} }
+    if(BACKENDS.includes('claude')){ try{ await window.storage.delete(k); }catch(e){} }
+    return true;
+  },
+  label(){
+    if(!BACKENDS.length) return 'sin memoria permanente';
+    if(BACKENDS.includes('idb') && BACKENDS.includes('local')) return 'memoria del dispositivo (doble copia)';
+    if(BACKENDS.includes('idb')) return 'memoria del dispositivo';
+    if(BACKENDS.includes('local')) return 'memoria del navegador';
+    return 'ventana de Claude';
+  }
+};
+const toast = (m) => { const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),1900); };
+
+function setStatus(msg, ok){
+  const el = document.getElementById('storageStatus');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.color = ok===false ? 'var(--p-red)' : (ok===true ? 'var(--p-green)' : 'var(--smoke)');
+}
+
+async function saveLogs(silent){
+  const payload = { v:3, start: START_DATE.toISOString().slice(0,10), logs: LOGS };
+  try{
+    await DB.set(KEY, JSON.stringify(payload));
+    const back = await DB.get(KEY);
+    const okv = back && JSON.parse(back).logs;
+    STORAGE_OK = !!okv;
+    if(!silent) setStatus(STORAGE_OK ? 'Guardado y verificado · '+Object.keys(LOGS).length+' dias en memoria' : 'El guardado no se pudo verificar', STORAGE_OK);
+    return STORAGE_OK;
+  }catch(e){
+    STORAGE_OK = false;
+    if(!silent) setStatus('Error al guardar. Usa Copiar datos para no perder nada.', false);
+    return false;
+  }
+}
+
+async function savePhotos(date){
+  try{
+    const arr = PHOTOS[date] || [];
+    if(!arr.length){ await DB.del(photoKey(date)); await savePhotoIndex(); return true; }
+    const ok = await DB.set(photoKey(date), JSON.stringify(arr));
+    await savePhotoIndex();
+    // verificacion real: releer lo que acabamos de escribir
+    const back = await DB.get(photoKey(date));
+    return ok && !!back && JSON.parse(back).length === arr.length;
+  }catch(e){ return false; }
+}
+async function loadPhotos(date){
+  try{
+    const r = await DB.get(photoKey(date));
+    PHOTOS[date] = r ? JSON.parse(r) : [];
+  }catch(e){ PHOTOS[date] = []; }
+  renderGallery();
+}
+
+const IDX_KEY = 'plan8773:fotosIndex';
+let PHOTO_DAYS = [];
+async function savePhotoIndex(){
+  const days = new Set(PHOTO_DAYS);
+  Object.keys(PHOTOS).forEach(d => { if((PHOTOS[d]||[]).length) days.add(d); else days.delete(d); });
+  PHOTO_DAYS = [...days].sort();
+  try{ await DB.set(IDX_KEY, JSON.stringify(PHOTO_DAYS)); }catch(e){}
+}
+async function loadPhotoIndex(){
+  try{ const r = await DB.get(IDX_KEY); PHOTO_DAYS = r ? JSON.parse(r) : []; }
+  catch(e){ PHOTO_DAYS = []; }
+}
+
+const BEACON = 'plan8773:beacon';
+let LAST_SESSION = null;
+async function checkBeacon(){
+  try{
+    const prev = await DB.get(BEACON);
+    LAST_SESSION = prev ? JSON.parse(prev) : null;
+  }catch(e){ LAST_SESSION = null; }
+  try{ await DB.set(BEACON, JSON.stringify({t: Date.now(), f: todayISO()})); }catch(e){}
+}
+
+async function loadLogs(){
+  const capas = await DB.init();
+  await checkBeacon();
+  await loadPhotoIndex();
+  let loaded = false, hadError = false;
+  try{
+    const r = await DB.get(KEY);
+    if(r){
+      const p = JSON.parse(r);
+      LOGS = p.logs || {};
+      if(p.start){ const [y,m,d] = p.start.split('-').map(Number); START_DATE = new Date(y, m-1, d); }
+      loaded = true; STORAGE_OK = true;
+    }
+  }catch(e){ hadError = true; }
+
+  try{
+    const old = await DB.get(OLD_KEY);
+    if(old){
+      const p = JSON.parse(old);
+      const oldLogs = p.logs || p;
+      let recovered = 0;
+      Object.keys(oldLogs).forEach(d=>{
+        if(/^\d{4}-\d{2}-\d{2}$/.test(d) && !LOGS[d]){ LOGS[d] = oldLogs[d]; recovered++; }
+      });
+      if(p.start && !loaded){ const [y,m,dd] = p.start.split('-').map(Number); START_DATE = new Date(y, m-1, dd); }
+      if(recovered){
+        loaded = true; STORAGE_OK = true;
+        await saveLogs(true);
+        setTimeout(()=>toast('Recuperados '+recovered+' dias de la version anterior'), 700);
+      }
+    }
+  }catch(e){}
+
+  const cap = DB.label();
+  if(!BACKENDS.length){
+    setStatus('AVISO: este navegador no permite guardar nada. Descarga la copia de seguridad antes de cerrar.', false);
+    showStorageWarning(true);
+  } else if(loaded){
+    setStatus('Guardando en: '+cap+' · '+Object.keys(LOGS).length+' dias en el historial', true);
+    showStorageWarning(false);
+  } else {
+    setStatus('Guardando en: '+cap+' · historial vacio, empieza hoy', null);
+    showStorageWarning(false);
+  }
+
+  const rh = document.getElementById('restoreHint');
+  if(rh && !Object.keys(LOGS).length && BACKENDS.length) rh.style.display = 'block';
+  renderDiag();
+
+  await loadPhotos(todayISO());
+  renderToday(); selWeek = weekLetter(new Date()); renderWeek();
+  renderHistory(); renderChart(); renderWeekSummary(); renderRail(); computeRecovery(); renderEaten();
+}
+
+/* ============================================================
+   HOY
+   ============================================================ */
+function weekLetter(d){
+  const diff = Math.floor((d - START_DATE)/86400000);
+  const wk = Math.floor(((diff%7)+7)%7 === 0 ? diff/7 : Math.floor(diff/7));
+  return (Math.abs(wk)%2===0) ? 'A' : 'B';
+}
+function currentWeekNum(){
+  const diff = Math.floor((new Date() - START_DATE)/86400000);
+  return Math.max(1, Math.min(WEEKS, Math.floor(diff/7)+1));
+}
+
+function exHTML(e){
+  const link = e.link ? yt(e.link) : yt(e.name);
+  const x = EX_EXTRA[e.name];
+  let extra = '';
+  if(x){
+    if(x.why) extra += `<details class="exdet"><summary>Por qué haces este ejercicio</summary><p class="why">${x.why}</p></details>`;
+    if(x.alt) extra += `<details class="exdet"><summary>No hay máquina o está ocupada</summary><ul class="subs">${x.alt.map(a=>`<li>${a}</li>`).join('')}</ul></details>`;
+  }
+  return `<li class="ex"><div class="ex-top"><div class="ex-n"></div><div class="ex-body">
+    <div class="ex-name">${e.name}</div>
+    <div class="ex-prescr">${e.prescr}</div>
+    <div class="ex-cue">${e.cue}</div>
+    ${e.warn?`<div class="warnex">${e.warn}</div>`:''}
+    <a class="ex-link" href="${link}" target="_blank" rel="noopener">Ver ejecución ↗</a>
+    ${extra}
+  </div></div></li>`;
+}
+function workoutHTML(key){
+  const w = WORKOUTS[key];
+  return `<div class="card-hd" style="margin-bottom:6px"><span class="tag ${w.tag}">${w.title}</span></div>
+    <p class="note" style="margin-bottom:6px">${w.intro}</p>
+    <ol class="exlist" style="margin-top:10px">${w.ex.map(exHTML).join('')}</ol>`;
+}
+function dietHTML(key, ctx){
+  const d = DIETS[key];
+  return `<div class="macros">
+      <div class="macro"><div class="m-v">${d.kcal}</div><div class="m-l">kcal</div></div>
+      <div class="macro"><div class="m-v">${d.p}</div><div class="m-l">g proteína</div></div>
+      <div class="macro"><div class="m-v">${d.c}</div><div class="m-l">g carbos</div></div>
+      <div class="macro"><div class="m-v">${d.f}</div><div class="m-l">g grasa</div></div>
+    </div>
+    <p class="note" style="margin-bottom:4px"><b style="color:var(--chalk)">Por qué hoy comes así.</b> ${d.why}</p>
+    <div>${d.meals.map((m,idx)=>{
+      const sl = slotOf(m.n); const A = sl?MEAL_ALTS[sl]:null;
+      const mid = (ctx||'x')+'-'+key+'-'+idx;
+      let inner;
+      if(A){
+        MEAL_STATE[mid] = {base:m, alts:A.opts, sel:-1};
+        inner = `<div class="optbar">
+            <button class="opt on" data-mi="${mid}" data-oi="-1">Plan base</button>
+            ${A.opts.map((o,j)=>{const lb=o.n.split('·')[1]?o.n.split('·')[1].trim():o.n;return `<button class="opt" data-mi="${mid}" data-oi="${j}">${lb}</button>`;}).join('')}
+          </div>
+          <div id="body-${mid}"></div>
+          <details class="exdet"><summary>Por qué estas opciones son equivalentes</summary><p class="why">${A.rule}</p></details>`;
+      } else {
+        inner = `<ul>${m.items.map(i=>`<li>${i}</li>`).join('')}</ul><div class="howto"><b>Cómo:</b> ${m.how}</div>`;
+      }
+      return `<div class="meal">
+      <div class="meal-hd"><div><span class="meal-time">${m.t}</span> <span class="meal-name">${m.n}</span></div><span class="meal-kcal">${m.k}</span></div>
+      ${inner}
+    </div>`;}).join('')}</div>`;
+}
+
+const MEAL_STATE = {};
+function paintMeal(mid){
+  const s = MEAL_STATE[mid]; if(!s) return;
+  const el = document.getElementById('body-'+mid); if(!el) return;
+  if(s.sel===-1){
+    el.innerHTML = `<ul>${s.base.items.map(i=>`<li>${i}</li>`).join('')}</ul><div class="howto"><b>Cómo:</b> ${s.base.how}</div>`;
+  } else {
+    const o = s.alts[s.sel];
+    el.innerHTML = `<ul>${o.items.map(i=>`<li>${i}</li>`).join('')}</ul><div class="swapnote">${o.note}</div>`;
+  }
+  document.querySelectorAll('[data-mi="'+mid+'"]').forEach(b=>b.classList.toggle('on', +b.dataset.oi===s.sel));
+}
+function bindMeals(){
+  Object.keys(MEAL_STATE).forEach(paintMeal);
+  document.querySelectorAll('.opt[data-mi]').forEach(b=>{
+    b.onclick = ()=>{ MEAL_STATE[b.dataset.mi].sel = +b.dataset.oi; paintMeal(b.dataset.mi); };
+  });
+}
+
+function renderToday(){
+  const now = new Date();
+  const dow = now.getDay();
+  const L = weekLetter(now);
+  const key = SPLIT[L][dow];
+  const w = WORKOUTS[key];
+  const dk = dietOf(key);
+
+  document.getElementById('hdrDate').textContent =
+    DAYSHORT[dow] + ' · ' + String(now.getDate()).padStart(2,'0') + '.' + String(now.getMonth()+1).padStart(2,'0') + ' · SEM ' + L;
+  document.getElementById('todayTitle').textContent = w.title;
+  document.getElementById('todaySub').textContent = DAYNAMES[dow] + ' · Semana ' + L + ' del ciclo · Entreno previsto 16:00-17:00';
+  document.getElementById('woDur').textContent = w.dur;
+  document.getElementById('todayWorkout').innerHTML = workoutHTML(key);
+  document.getElementById('dietTag').textContent = DIETS[dk].label + ' · ' + DIETS[dk].kcal + ' kcal';
+  document.getElementById('todayDiet').innerHTML = dietHTML(dk,'hoy');
+  window.__todayKey = key;
+  bindMeals();
+}
+
+/* ---------- puntuación de recuperación ---------- */
+const sliders = ['SleepH','SleepQ','Energy','Sore','Stress','Knee'];
+sliders.forEach(id=>{
+  const el = document.getElementById('q'+id);
+  el.addEventListener('input',()=>{ document.getElementById('v'+id).textContent = el.value; computeRecovery(); });
+});
+document.getElementById('qRest').addEventListener('change', computeRecovery);
+document.getElementById('qHR').addEventListener('input', computeRecovery);
+
+function hrBaseline(){
+  const v = sortedDates().map(d=>LOGS[d].hr).filter(x=>x!=null);
+  if(v.length<5) return null;
+  const last = v.slice(-14);
+  return last.reduce((a,b)=>a+b,0)/last.length;
+}
+
+function hoursScore(h){
+  if(h<4) return 2; if(h<5) return 4; if(h<6) return 5.5; if(h<6.5) return 7;
+  if(h<7) return 8; if(h<=8.5) return 10; if(h<=9.5) return 9; return 8;
+}
+function computeRecovery(){
+  const h = +document.getElementById('qSleepH').value;
+  const q = +document.getElementById('qSleepQ').value;
+  const e = +document.getElementById('qEnergy').value;
+  const s = 11 - +document.getElementById('qSore').value;
+  const st = 11 - +document.getElementById('qStress').value;
+  const k = +document.getElementById('qKnee').value;
+  const rest = +document.getElementById('qRest').value;
+
+  let score = hoursScore(h)*0.20 + q*0.20 + e*0.25 + s*0.13 + st*0.10 + (10-k)*0.12;
+  score += (rest-0.5)*0.6;
+
+  const hrEl = document.getElementById('qHR');
+  const hr = hrEl.value ? +hrEl.value : null;
+  const base = hrBaseline();
+  const hint = document.getElementById('hrBase');
+  window.__hrFlag = null;
+  if(base==null){
+    hint.textContent = hr ? 'Guardado. Tu media personal aparecerá cuando tengas 5 días registrados.' : 'Tu media aún se está construyendo: necesita 5 días registrados.';
+  } else if(hr==null){
+    hint.textContent = 'Tu media de los últimos días es ' + base.toFixed(0) + ' ppm. Introduce la de hoy para afinar la puntuación.';
+  } else {
+    const diff = hr - base;
+    if(diff >= 7){ score -= 1.2; window.__hrFlag='alta'; hint.textContent = 'Hoy estás ' + diff.toFixed(0) + ' ppm por encima de tu media de ' + base.toFixed(0) + '. Eso suele indicar fatiga acumulada, poco sueño o que estás incubando algo.'; }
+    else if(diff >= 4){ score -= 0.6; window.__hrFlag='leve'; hint.textContent = 'Hoy estás ' + diff.toFixed(0) + ' ppm por encima de tu media de ' + base.toFixed(0) + '. Ligeramente elevada: entrena, pero sin buscar récords.'; }
+    else if(diff <= -3){ score += 0.4; hint.textContent = 'Hoy estás ' + Math.abs(diff).toFixed(0) + ' ppm por debajo de tu media de ' + base.toFixed(0) + '. Señal de buena recuperación.'; }
+    else { hint.textContent = 'En línea con tu media de ' + base.toFixed(0) + ' ppm. Normal.'; }
+  }
+  document.getElementById('lgHR').value = hr!=null ? hr : '';
+  score = Math.max(1, Math.min(10, score));
+
+  document.getElementById('scoreNum').textContent = score.toFixed(1).replace('.',',');
+  document.getElementById('lgRec').value = score.toFixed(1);
+  drawPlates(score);
+  verdict(score, k, h);
+}
+
+/* firma visual: discos olímpicos cargados en la barra */
+function drawPlates(score){
+  const g = document.getElementById('plates');
+  const lbl = document.getElementById('barLabel');
+  g.innerHTML = '';
+  const specs = [
+    {c:'#D8232A', h:64, w:11, t:'25 kg'},
+    {c:'#2168C4', h:56, w:10, t:'20 kg'},
+    {c:'#F2C438', h:46, w:9,  t:'15 kg'},
+    {c:'#34A05C', h:36, w:8,  t:'10 kg'},
+    {c:'#E9E6E0', h:26, w:7,  t:'5 kg'}
+  ];
+  let n, txt, col;
+  if(score>=8){ n=3; txt='CARGA MÁXIMA'; }
+  else if(score>=6.5){ n=2; txt='CARGA ESTÁNDAR'; }
+  else if(score>=5){ n=1; txt='CARGA REDUCIDA'; }
+  else if(score>=3.5){ n=0; txt='SOLO BARRA · MOVILIDAD'; }
+  else { n=-1; txt='LA BARRA SE QUEDA EN EL RACK'; }
+  lbl.textContent = txt;
+
+  if(n<0){ g.innerHTML = '<line x1="10" y1="20" x2="350" y2="76" stroke="#D8232A" stroke-width="2" stroke-dasharray="5 4"/>'; return; }
+  const set = specs.slice(0, Math.max(n,0));
+  let offL = 72, offR = 288;
+  set.forEach((p,i)=>{
+    offL -= (p.w+2);
+    g.innerHTML += `<rect x="${offL}" y="${48-p.h/2}" width="${p.w}" height="${p.h}" rx="2" fill="${p.c}"/>`;
+    g.innerHTML += `<rect x="${offR}" y="${48-p.h/2}" width="${p.w}" height="${p.h}" rx="2" fill="${p.c}"/>`;
+    offR += (p.w+2);
+  });
+}
+
+function verdict(score, knee, hours){
+  const box = document.getElementById('verdict');
+  const key = window.__todayKey || 'descanso';
+  const isLeg = (key==='pierna1'||key==='pierna2');
+  const isRestDay = (key==='descanso'||key==='activa');
+  box.style.display='block';
+  let title, text, list=[], color='var(--p-yellow)';
+
+  if(knee>=6 && isLeg){
+    color='var(--p-red)';
+    title='Hoy no toca pierna';
+    text='Has marcado la rodilla en '+knee+'/10. Con ese nivel de molestia, entrenar pierna con carga es cambiar una sesión por tres semanas de parón.';
+    list=['Cambia la sesión por tren superior ligero: jalón, remo en máquina y face pull, 3 series de 12 sin llegar cerca del fallo.',
+          'Añade 20 minutos de bici sin resistencia: bombea líquido sinovial y suele aliviar.',
+          'Hielo 15 minutos por la noche si notas inflamación.',
+          'Si esto se repite dos veces esta semana, pide cita con un fisioterapeuta antes de seguir con el plan de pierna.'];
+  } else if(score>=8){
+    color='var(--p-green)';
+    title='Sesión de fuerza pesada · verde';
+    text='Estás recuperado. Este es el día para buscar un récord personal: sube 2,5 kg en el tren superior o 5 kg en prensa respecto a la última vez.';
+    list=['Haz el plan completo, series y repeticiones tal cual.','Trabaja a RIR 1: te quedas a una repetición del fallo en la última serie de cada ejercicio.','Descansos completos, no los acortes por prisa.','Anota las cargas en el Registro: hoy es el día que marca tu nuevo punto de partida.'];
+  } else if(score>=6.5){
+    title='Sesión estándar · ámbar';
+    text='Estado normal de alguien en déficit calórico entrenando cinco días. Esto es lo esperable, no una excusa para recortar.';
+    list=['Plan completo con las mismas cargas de la sesión anterior.','RIR 2: deja dos repeticiones en el depósito.','Si a mitad de sesión te encuentras mejor de lo previsto, sube peso en los dos últimos ejercicios.','Cardio LISS solo si el día lo incluye.'];
+  } else if(score>=5){
+    color='var(--p-blue)';
+    title='Volumen reducido · azul';
+    text='Estás por debajo de tu nivel. No canceles el entreno: entrenar en corto conserva el músculo y el hábito, y hoy el hábito vale más que el rendimiento.';
+    list=['Quita una serie a cada ejercicio.','Baja la carga un 10 % y mantén las repeticiones.','Salta el último ejercicio accesorio si vas justo de energía.',(isLeg?'En pierna, haz el calentamiento de rodilla completo igualmente: ese no se recorta nunca.':'Mantén el cardio pero reduce a 15 minutos.')];
+  } else if(score>=3.5){
+    color='var(--p-blue)';
+    title='Movilidad y recuperación activa';
+    text='Con esta puntuación, una sesión dura te va a costar más de lo que te da. Hoy toca mover el cuerpo sin castigarlo.';
+    list=['Caminata de 40-50 minutos a ritmo cómodo.','Rutina de movilidad de cadera, tobillo y torácica, 15 minutos.','Rodillo de espuma 8 minutos.','Come el plan de recuperación activa, no el de entreno: hoy gastas menos.','Acuéstate una hora antes. Esto es lo que arregla mañana.'];
+  } else {
+    color='var(--p-red)';
+    title='Descanso total';
+    text='Tu cuerpo te está pidiendo parar y hoy la decisión correcta es escucharlo. Un día de descanso extra no te aleja de los 73 kg; una lesión o un mes de agotamiento sí.';
+    list=['Nada de gimnasio ni de cardio estructurado.','Camina lo que salga de forma natural.','Come el plan de descanso, con la proteína completa.','Duerme 8-9 horas. Si esto se repite tres días seguidos, revisa si el déficit se te ha ido de las manos o si hay algo médico detrás.'];
+  }
+  if(window.__hrFlag==='alta'){ list.push('Tu frecuencia en reposo está claramente por encima de tu media. Si además te notas la garganta rara o con menos ganas de lo normal, hoy es un día para hacer la mitad y dormir más, no para insistir.'); }
+  if(hours<5.5 && score>=5){ list.push('Aviso: has dormido '+hours+' h. Con menos de 6 horas la fuerza cae y el hambre sube; hoy prioriza acostarte pronto por encima de cualquier otra cosa del plan.'); }
+  if(isRestDay && score>=6.5){ list.push('Hoy no había entreno programado, así que esa puntuación es buena noticia: llegarás fresco a la próxima sesión.'); }
+
+  box.style.borderLeftColor = color;
+  document.getElementById('vTitle').textContent = title;
+  document.getElementById('vText').textContent = text;
+  document.getElementById('vList').innerHTML = list.map(i=>`<li>${i}</li>`).join('');
+}
+
+/* ============================================================
+   PLAN
+   ============================================================ */
+let selWeek='A', selDay=new Date().getDay();
+function renderWeek(){
+  document.getElementById('btnWkA').style.borderColor = selWeek==='A'?'var(--p-yellow)':'var(--line)';
+  document.getElementById('btnWkB').style.borderColor = selWeek==='B'?'var(--p-yellow)':'var(--line)';
+  document.getElementById('wkNote').textContent = selWeek==='A'
+    ? 'Semana A · Lun pecho y tríceps · Mar pierna 1 · Mié espalda y bíceps · Jue pecho y hombro · Vie pierna 2. Doble dosis de pecho esta semana; la espalda la recibe en la B.'
+    : 'Semana B · Lun espalda y bíceps · Mar pierna 1 · Mié pecho y hombro · Jue espalda y hombro posterior · Vie pierna 2. Doble dosis de espalda esta semana.';
+  const order=[1,2,3,4,5,6,0];
+  document.getElementById('weekStrip').innerHTML = order.map(d=>{
+    const k = SPLIT[selWeek][d]; const w = WORKOUTS[k];
+    const c = w.tag==='red'?'var(--p-red)':(w.tag==='blue'?'var(--p-blue)':'var(--p-green)');
+    return `<div class="wd ${d===selDay?'sel':''}" data-day="${d}"><div class="d">${DAYSHORT[d]}</div><div class="m" style="background:${c}"></div></div>`;
+  }).join('');
+  document.querySelectorAll('.wd').forEach(el=>el.addEventListener('click',()=>{selDay=+el.dataset.day;renderWeek();}));
+  const k = SPLIT[selWeek][selDay];
+  document.getElementById('planDetail').innerHTML = `<div class="card">${workoutHTML(k)}</div>`;
+}
+document.getElementById('btnWkA').addEventListener('click',()=>{selWeek='A';renderWeek();});
+document.getElementById('btnWkB').addEventListener('click',()=>{selWeek='B';renderWeek();});
+
+/* ============================================================
+   COMIDA
+   ============================================================ */
+let selDiet='torso';
+function renderDiet(){
+  document.querySelectorAll('[data-diet]').forEach(b=>{
+    b.style.borderColor = b.dataset.diet===selDiet?'var(--p-yellow)':'var(--line)';
+  });
+  document.getElementById('dietDetail').innerHTML = `<div class="card">${dietHTML(selDiet,'menu')}</div>`;
+  bindMeals();
+}
+document.querySelectorAll('[data-diet]').forEach(b=>b.addEventListener('click',()=>{selDiet=b.dataset.diet;renderDiet();}));
+
+/* ============================================================
+   REGISTRO
+   ============================================================ */
+const todayISO = () => { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+document.getElementById('lgDate').value = todayISO();
+
+document.getElementById('btnSave').addEventListener('click', async ()=>{
+  USER_ACTED = true;
+  const date = document.getElementById('lgDate').value;
+  if(!date){ toast('Falta la fecha'); return; }
+  const g = id => document.getElementById(id).value;
+  const prev = LOGS[date] || {};
+  LOGS[date] = {
+    eaten: prev.eaten || {kcal:0,p:0,c:0,f:0,items:[]},
+    w: g('lgWeight')?+g('lgWeight'):null,
+    steps: g('lgSteps')?+g('lgSteps'):null,
+    sleep: g('lgSleep')?+g('lgSleep'):null,
+    adh: g('lgAdh')?+g('lgAdh'):null,
+    train: g('lgTrain'),
+    knee: g('lgKnee')!==''?+g('lgKnee'):null,
+    hr: g('lgHR')?+g('lgHR'):null,
+    rec: g('lgRec')?+g('lgRec'):null,
+    notes: g('lgNotes')
+  };
+  const ok = await saveLogs();
+  renderHistory(); renderChart(); renderWeekSummary(); renderRail(); renderDiag();
+  if(!BACKENDS.length){
+    toast('Sin memoria: descargando tu copia');
+    setTimeout(()=>downloadBackup(true), 400);
+  } else {
+    toast(ok?'Día guardado':'No se pudo guardar');
+  }
+});
+
+function sortedDates(){ return Object.keys(LOGS).sort(); }
+
+function renderHistory(){
+  const ds = sortedDates().reverse().slice(0,14);
+  const wrap = document.getElementById('histWrap');
+  if(!ds.length){ wrap.innerHTML = '<p class="note">Aún no hay registros. Guarda el primero arriba.</p>'; return; }
+  wrap.innerHTML = `<div style="overflow-x:auto"><table><thead><tr>
+    <th>Fecha</th><th>Peso</th><th>Sueño</th><th>Pasos</th><th>Dieta</th><th>FC</th><th>Rec.</th></tr></thead><tbody>
+    ${ds.map(d=>{const l=LOGS[d];return `<tr>
+      <td>${d.slice(8)}/${d.slice(5,7)}</td>
+      <td>${l.w!=null?l.w.toFixed(1):'—'}</td>
+      <td>${l.sleep!=null?l.sleep:'—'}</td>
+      <td>${l.steps!=null?(l.steps/1000).toFixed(1)+'k':'—'}</td>
+      <td>${l.adh!=null?l.adh+'%':'—'}</td>
+      <td>${l.hr!=null?l.hr:'—'}</td>
+      <td>${l.rec!=null?l.rec.toFixed(1):'—'}</td></tr>`;}).join('')}
+    </tbody></table></div>`;
+}
+
+function renderChart(){
+  const svg = document.getElementById('chart');
+  const pts = sortedDates().filter(d=>LOGS[d].w!=null).map(d=>({d:new Date(d), w:LOGS[d].w}));
+  const W=340,H=190,PL=34,PR=10,PT=12,PB=26;
+  const yMax=88.5, yMin=71.5;
+  const x0=START_DATE.getTime(), x1=x0+WEEKS*7*86400000;
+  const X = t => PL + (t-x0)/(x1-x0)*(W-PL-PR);
+  const Y = w => PT + (yMax-w)/(yMax-yMin)*(H-PT-PB);
+  let s='';
+  for(let v=72; v<=88; v+=4){
+    s+=`<line x1="${PL}" y1="${Y(v)}" x2="${W-PR}" y2="${Y(v)}" stroke="#2A313A" stroke-width="1"/>`;
+    s+=`<text x="${PL-6}" y="${Y(v)+3.5}" text-anchor="end" fill="#8D959E" font-size="9" font-family="IBM Plex Mono, monospace">${v}</text>`;
+  }
+  s+=`<line x1="${PL}" y1="${Y(73)}" x2="${W-PR}" y2="${Y(73)}" stroke="#34A05C" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+  s+=`<text x="${W-PR}" y="${Y(73)-5}" text-anchor="end" fill="#34A05C" font-size="9" font-family="IBM Plex Mono, monospace">META 73</text>`;
+  s+=`<line x1="${X(x0)}" y1="${Y(START_WEIGHT)}" x2="${X(x1)}" y2="${Y(TARGET_WEIGHT)}" stroke="#2168C4" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+  for(let m=1;m<=4;m++){
+    const t=x0+m*30*86400000; if(t<=x1) s+=`<text x="${X(t)}" y="${H-8}" text-anchor="middle" fill="#8D959E" font-size="8.5" font-family="IBM Plex Mono, monospace">M${m}</text>`;
+  }
+  if(pts.length){
+    const path = pts.map((p,i)=>(i?'L':'M')+X(p.d.getTime()).toFixed(1)+' '+Y(p.w).toFixed(1)).join(' ');
+    s+=`<path d="${path}" fill="none" stroke="#F2C438" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    pts.forEach(p=>{ s+=`<circle cx="${X(p.d.getTime()).toFixed(1)}" cy="${Y(p.w).toFixed(1)}" r="2.6" fill="#F2C438"/>`; });
+    const last=pts[pts.length-1];
+    s+=`<text x="${Math.min(X(last.d.getTime())+6,W-PR-24)}" y="${Y(last.w)-7}" fill="#F2C438" font-size="10" font-weight="600" font-family="IBM Plex Mono, monospace">${last.w.toFixed(1)}</text>`;
+  } else {
+    s+=`<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="#5C646D" font-size="10" font-family="IBM Plex Mono, monospace">Registra tu peso para dibujar la curva</text>`;
+  }
+  svg.innerHTML=s;
+}
+
+function renderWeekSummary(){
+  const ds = sortedDates().slice(-7).map(d=>LOGS[d]);
+  const box = document.getElementById('weekSummary').children;
+  const vd = document.getElementById('weekVerdict');
+  if(!box || box.length < 4) return;
+  if(ds.length<2){ vd.textContent='Registra al menos 4 días para que aparezca la lectura semanal.'; return; }
+  const ws = ds.filter(l=>l.w!=null).map(l=>l.w);
+  const dw = ws.length>=2 ? (ws[ws.length-1]-ws[0]) : null;
+  const avg = a => a.length? a.reduce((x,y)=>x+y,0)/a.length : null;
+  const sl = avg(ds.filter(l=>l.sleep!=null).map(l=>l.sleep));
+  const st = avg(ds.filter(l=>l.steps!=null).map(l=>l.steps));
+  const ad = avg(ds.filter(l=>l.adh!=null).map(l=>l.adh));
+  box[0].querySelector('.m-v').textContent = dw!=null ? (dw>0?'+':'')+dw.toFixed(1) : '—';
+  box[1].querySelector('.m-v').textContent = sl!=null ? sl.toFixed(1) : '—';
+  box[2].querySelector('.m-v').textContent = st!=null ? (st/1000).toFixed(1)+'k' : '—';
+  box[3].querySelector('.m-v').textContent = ad!=null ? Math.round(ad)+'%' : '—';
+
+  if(ds.length<4){ vd.textContent='Registra al menos 4 días para que aparezca la lectura semanal.'; return; }
+  let msg='';
+  if(dw==null) msg='Falta el peso para leer la tendencia. Pésate en ayunas todos los días: la media semanal es lo único fiable.';
+  else if(dw>0.3) msg='Has subido esta semana. Antes de recortar calorías revisa si has pesado la comida, si los pasos han caído y si has dormido. Si todo estaba bien dos semanas seguidas, quita 150 kcal.';
+  else if(dw>-0.25) msg='Peso estable. Un solo dato no es un estancamiento: dale otra semana antes de tocar nada.';
+  else if(dw>=-0.95) msg='Ritmo correcto. Estás en la zona donde se pierde grasa conservando músculo. No aceleres.';
+  else msg='Estás bajando muy rápido. A este ritmo parte de esa pérdida es músculo. Suma 150-200 kcal de carbohidrato a los días de entreno.';
+  if(sl!=null && sl<6.5) msg += ' Además, tu media de sueño está en '+sl.toFixed(1)+' h: eso reduce la pérdida de grasa y aumenta el hambre. Es la palanca más rentable que tienes ahora mismo.';
+  vd.textContent = msg;
+}
+
+function renderRail(){
+  const wk = currentWeekNum();
+  const ds = sortedDates().filter(d=>LOGS[d].w!=null);
+  const last = ds.length ? LOGS[ds[ds.length-1]].w : START_WEIGHT;
+  const prog = Math.max(0, Math.min(100, (START_WEIGHT-last)/(START_WEIGHT-TARGET_WEIGHT)*100));
+  document.getElementById('railFill').style.width = prog.toFixed(1)+'%';
+  document.getElementById('railLeft').textContent = 'Semana '+wk+' de '+WEEKS+' · '+prog.toFixed(0)+'%';
+  document.getElementById('railRight').textContent = last.toFixed(1).replace('.',',')+' kg';
+}
+
+document.getElementById('btnExport').addEventListener('click', async ()=>{
+  const txt = sortedDates().map(d=>{const l=LOGS[d];return `${d} | ${l.w??'-'} kg | sueño ${l.sleep??'-'} h | ${l.steps??'-'} pasos | dieta ${l.adh??'-'}% | rec ${l.rec??'-'} | rodilla ${l.knee??'-'} | FC ${l.hr??'-'} | ${l.train} | ${l.notes||''}`;}).join('\n');
+  try{ await navigator.clipboard.writeText(txt||'Sin registros'); toast('Datos copiados'); }
+  catch(e){ toast('Copia manual: revisa la tabla'); }
+});
+document.getElementById('btnReset').addEventListener('click', async ()=>{
+  if(!confirm('Se borran todos tus registros y el contador vuelve a la semana 1. Esto no se puede deshacer.')) return;
+  LOGS={}; START_DATE = midnight(new Date()); await saveLogs(); renderHistory(); renderChart(); renderWeekSummary(); renderRail(); toast('Registros borrados');
+});
+
+/* ============================================================
+   NAVEGACIÓN
+   ============================================================ */
+function goTab(t){
+  document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('on', p.id==='pane-'+t));
+  document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.toggle('on', b.dataset.tab===t));
+  window.scrollTo({top:0,behavior:'instant'});
+}
+document.querySelectorAll('nav.bottom button').forEach(b=>b.addEventListener('click',()=>goTab(b.dataset.tab)));
+document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',()=>goTab(b.dataset.goto)));
+
+/* ============================================================
+   FOTO DEL PLATO
+   ============================================================ */
+let photoB64 = null, thumbB64 = null;
+
+function todayTargets(){
+  const k = window.__todayKey || 'descanso';
+  return DIETS[dietOf(k)];
+}
+function eatenToday(){
+  const d = todayISO();
+  if(!LOGS[d]) LOGS[d] = {train:'completo'};
+  if(!LOGS[d].eaten) LOGS[d].eaten = {kcal:0,p:0,c:0,f:0,items:[]};
+  return LOGS[d].eaten;
+}
+
+document.getElementById('photoIn').addEventListener('change', function(){
+  const file = this.files && this.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const max = 900;
+      const sc = Math.min(1, max/Math.max(img.width, img.height));
+      const cv = document.createElement('canvas');
+      cv.width = Math.round(img.width*sc); cv.height = Math.round(img.height*sc);
+      cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+      const url = cv.toDataURL('image/jpeg', 0.75);
+      photoB64 = url.split(',')[1];
+      // miniatura ligera para guardar en el historial (~25 KB)
+      const tmax = 420, ts = Math.min(1, tmax/Math.max(img.width, img.height));
+      const tc = document.createElement('canvas');
+      tc.width = Math.round(img.width*ts); tc.height = Math.round(img.height*ts);
+      tc.getContext('2d').drawImage(img,0,0,tc.width,tc.height);
+      thumbB64 = tc.toDataURL('image/jpeg', 0.55);
+      const pv = document.getElementById('preview');
+      pv.src = url; pv.style.display = 'block';
+      document.getElementById('describeBox').style.display = 'block';
+      document.getElementById('btnAnalyze').style.display = 'flex';
+      document.getElementById('analysisOut').innerHTML = '';
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('btnAnalyze').addEventListener('click', async ()=>{
+  if(!photoB64) return;
+  const btn = document.getElementById('btnAnalyze');
+  const out = document.getElementById('analysisOut');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Analizando el plato…';
+  out.innerHTML = '';
+  const T = todayTargets();
+  const desc = (document.getElementById('photoDesc').value || '').trim();
+  const descBlock = desc
+    ? `\nEL USUARIO DESCRIBE ASÍ EL PLATO: "${desc}"\nEsta descripción es prioritaria: si contradice lo que crees ver en la imagen, hazle caso al usuario, porque él tiene el plato delante. Úsala para resolver lo que la foto no muestra (aceite, salsas, ingredientes tapados, tamaño de la ración) y sube la confianza en consecuencia.`
+    : `\nEl usuario no ha añadido descripción. Si hay ingredientes que no puedes identificar con seguridad, dilo claramente en motivo_confianza y baja la confianza.`;
+  const prompt = `Eres un nutricionista deportivo estimando una comida a partir de una foto.
+Contexto: hombre de 87 kg en déficit calórico. Su objetivo de HOY es ${T.kcal} kcal, ${T.p} g de proteína, ${T.c} g de carbohidrato, ${T.f} g de grasa.${descBlock}
+Analiza el plato de la imagen. Estima las cantidades siendo realista con el aceite de cocinado y las salsas, que suelen infravalorarse.
+Responde SOLO con un objeto JSON, sin markdown, sin explicación fuera del JSON, con exactamente estas claves:
+{"alimentos":["texto corto con alimento y cantidad estimada"],"kcal":number,"proteina":number,"carbos":number,"grasa":number,"confianza":"alta"|"media"|"baja","motivo_confianza":"una frase sobre qué no se ve bien en la foto o, si el usuario lo ha descrito, en qué te has apoyado","consejo":"una o dos frases en español de España sobre cómo encaja en su día y qué ajustar en la siguiente comida","pregunta":"si algo clave sigue sin estar claro, una única pregunta corta al usuario; si no hace falta, cadena vacía"}
+Si la imagen no contiene comida, devuelve kcal 0 y en consejo explica que no ves comida en la foto.`;
+  try{
+    const r = await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        model:"claude-sonnet-4-6", max_tokens:1000,
+        messages:[{role:"user",content:[
+          {type:"image",source:{type:"base64",media_type:"image/jpeg",data:photoB64}},
+          {type:"text",text:prompt}
+        ]}]
+      })
+    });
+    const data = await r.json();
+    const txt = (data.content||[]).filter(x=>x.type==='text').map(x=>x.text).join('');
+    const clean = txt.replace(/```json/g,'').replace(/```/g,'').trim();
+    const j = JSON.parse(clean.slice(clean.indexOf('{'), clean.lastIndexOf('}')+1));
+    renderAnalysis(j);
+  }catch(e){
+    out.innerHTML = `<div class="verdict" style="border-left-color:var(--p-red)">
+      <h4>No he podido analizar la foto</h4>
+      <p>Puede ser la conexión o que la imagen sea difícil de leer. Prueba con más luz y el plato entero encuadrado, o usa la estimación con la mano de abajo, que no necesita internet.</p></div>`;
+  }
+  btn.disabled = false; btn.textContent = 'Analizar otro plato';
+});
+
+function renderAnalysis(j){
+  const T = todayTargets();
+  const cc = j.confianza==='alta'?'var(--p-green)':(j.confianza==='baja'?'var(--p-red)':'var(--p-yellow)');
+  const pct = (v,t) => Math.round(v/t*100);
+  document.getElementById('analysisOut').innerHTML = `
+    <div class="verdict" style="border-left-color:${cc};margin-top:14px">
+      <h4>Lo que veo en el plato</h4>
+      ${(j.alimentos||[]).map(a=>`<div class="foodline">· ${a}</div>`).join('')}
+      <div class="conf" style="color:${cc};margin-top:8px">Confianza ${j.confianza||'media'} · ${j.motivo_confianza||''}</div>
+    </div>
+    <div class="macros" style="margin-top:12px">
+      <div class="macro"><div class="m-v">${Math.round(j.kcal)}</div><div class="m-l">kcal</div></div>
+      <div class="macro"><div class="m-v">${Math.round(j.proteina)}</div><div class="m-l">g prot</div></div>
+      <div class="macro"><div class="m-v">${Math.round(j.carbos)}</div><div class="m-l">g carb</div></div>
+      <div class="macro"><div class="m-v">${Math.round(j.grasa)}</div><div class="m-l">g grasa</div></div>
+    </div>
+    <p class="note" style="margin-top:2px">Este plato es el <b style="color:var(--p-yellow)">${pct(j.kcal,T.kcal)} %</b> de tus calorías de hoy y el <b style="color:var(--p-yellow)">${pct(j.proteina,T.p)} %</b> de tu proteína.</p>
+    <div class="swapnote" style="margin-top:10px">${j.consejo||''}</div>
+    ${j.pregunta ? `<div class="verdict" style="border-left-color:var(--p-blue);margin-top:12px">
+        <h4>Para afinar la estimación</h4>
+        <p>${j.pregunta}</p>
+        <button class="btn sec" id="btnRefine" style="margin-top:10px">Responder y volver a analizar</button>
+      </div>` : ''}
+    <button class="btn" id="btnAddPhoto" style="margin-top:12px">Añadir al día</button>`;
+  const rf = document.getElementById('btnRefine');
+  if(rf) rf.onclick = ()=>{
+    const ta = document.getElementById('photoDesc');
+    ta.focus();
+    ta.scrollIntoView({behavior:'smooth', block:'center'});
+    toast('Añade el detalle y pulsa Analizar otra vez');
+  };
+  document.getElementById('btnAddPhoto').onclick = async ()=>{
+    USER_ACTED = true;
+    const e = eatenToday();
+    const desc = (j.alimentos||['Plato']).slice(0,2).join(', ');
+    e.kcal+=+j.kcal; e.p+=+j.proteina; e.c+=+j.carbos; e.f+=+j.grasa;
+    e.items.push({t:desc, kcal:Math.round(j.kcal), p:Math.round(j.proteina), c:Math.round(j.carbos), f:Math.round(j.grasa), foto:true});
+    const d = todayISO();
+    if(!PHOTOS[d]) PHOTOS[d] = [];
+    const userDesc = (document.getElementById('photoDesc').value || '').trim();
+    if(thumbB64) PHOTOS[d].push({img:thumbB64, t:desc, nota:userDesc, kcal:Math.round(j.kcal), p:Math.round(j.proteina), hora:new Date().toTimeString().slice(0,5)});
+    if(PHOTOS[d].length>8) PHOTOS[d] = PHOTOS[d].slice(-8);
+    const okA = await saveLogs();
+    const okB = await savePhotos(d);
+    renderEaten(); renderGallery();
+    document.getElementById('photoDesc').value = '';
+    document.querySelectorAll('#descChips .opt.on').forEach(x=>x.classList.remove('on'));
+    toast(okA&&okB ? 'Plato y foto guardados' : 'Guardado parcial: revisa el estado en Registro');
+  };
+}
+
+function renderGallery(){
+  const d = todayISO();
+  const arr = PHOTOS[d] || [];
+  const g = document.getElementById('gallery');
+  const c = document.getElementById('galCount');
+  if(!g) return;
+  if(c) c.textContent = arr.length + (arr.length===1?' foto':' fotos');
+  if(!arr.length){ g.innerHTML = '<p class="note">Todavía no has guardado ninguna foto hoy. Analiza un plato y pulsa "Añadir al día" para que quede archivado aquí.</p>'; return; }
+  g.innerHTML = '<div class="galgrid">' + arr.map((f,i)=>`<div class="galitem">
+      <button class="del" data-gi="${i}" aria-label="Borrar foto">×</button>
+      <img src="${f.img}" alt="${f.t||'Plato'}">
+      <div class="cap">${f.hora||''} · <b>${f.kcal} kcal</b><br>${(f.t||'').slice(0,42)}
+        ${f.nota?`<div style="color:#C3CAD1;margin-top:4px">“${f.nota.slice(0,70)}”</div>`:''}
+        <button class="opt" data-edit="${i}" style="margin-top:6px;padding:3px 8px;font-size:10px">${f.nota?'Editar nota':'Añadir nota'}</button>
+      </div>
+    </div>`).join('') + '</div>';
+  g.querySelectorAll('.del').forEach(b=>{
+    b.onclick = async ()=>{
+      const i = +b.dataset.gi;
+      if(!confirm('¿Borrar esta foto? Las calorías que ya sumaste al día no se descuentan.')) return;
+      PHOTOS[d].splice(i,1);
+      await savePhotos(d); renderGallery(); toast('Foto borrada');
+    };
+  });
+  g.querySelectorAll('[data-edit]').forEach(b=>{
+    b.onclick = async ()=>{
+      const i = +b.dataset.edit;
+      const actual = PHOTOS[d][i].nota || '';
+      const nueva = prompt('¿Qué era este plato? Añade lo que la foto no muestra: aceite, salsas, tamaño de la ración.', actual);
+      if(nueva===null) return;
+      PHOTOS[d][i].nota = nueva.trim();
+      await savePhotos(d); renderGallery(); toast('Nota guardada');
+    };
+  });
+}
+
+/* ---------- etiquetas rápidas de contexto ---------- */
+const DESC_CHIPS = ['Frito','A la plancha','Guisado','Con salsa','Ración de restaurante','Ración pequeña','Lleva queso','Lleva aguacate','Casero','Sin aceite'];
+function buildChips(){
+  const bar = document.getElementById('descChips');
+  if(!bar) return;
+  bar.innerHTML = DESC_CHIPS.map(c=>`<button class="opt" data-chip="${c}">${c}</button>`).join('');
+  bar.querySelectorAll('[data-chip]').forEach(b=>{
+    b.onclick = ()=>{
+      b.classList.toggle('on');
+      const ta = document.getElementById('photoDesc');
+      const on = [...bar.querySelectorAll('.opt.on')].map(x=>x.dataset.chip);
+      const base = ta.value.split(' · [')[0].trim();
+      ta.value = on.length ? (base ? base + ' · [' + on.join(', ') + ']' : '[' + on.join(', ') + ']') : base;
+    };
+  });
+}
+buildChips();
+
+/* ---------- estimación con la mano ---------- */
+const HAND = {p:0,c:0,f:0,v:0};
+const HAND_MACROS = {p:{kcal:170,p:30,c:0,f:5}, c:{kcal:200,p:4,c:45,f:1}, f:{kcal:100,p:0,c:0,f:11}, v:{kcal:25,p:2,c:5,f:0}};
+document.querySelectorAll('.step[data-h]').forEach(b=>{
+  b.onclick = ()=>{ const k=b.dataset.h; HAND[k]=Math.max(0,HAND[k]+ +b.dataset.v); document.getElementById('h'+k).textContent=HAND[k]; };
+});
+document.getElementById('btnAddHand').addEventListener('click', async ()=>{
+  USER_ACTED = true;
+  const tot = {kcal:0,p:0,c:0,f:0};
+  Object.keys(HAND).forEach(k=>{ const m=HAND_MACROS[k]; tot.kcal+=m.kcal*HAND[k]; tot.p+=m.p*HAND[k]; tot.c+=m.c*HAND[k]; tot.f+=m.f*HAND[k]; });
+  if(!tot.kcal){ toast('Cuenta algo primero'); return; }
+  const e = eatenToday();
+  e.kcal+=tot.kcal; e.p+=tot.p; e.c+=tot.c; e.f+=tot.f;
+  const desc = [HAND.p?HAND.p+' palma(s)':'', HAND.c?HAND.c+' puño(s)':'', HAND.f?HAND.f+' pulgar(es)':'', HAND.v?HAND.v+' verdura':''].filter(Boolean).join(' + ');
+  e.items.push({t:desc, kcal:tot.kcal, p:tot.p, c:tot.c, f:tot.f});
+  Object.keys(HAND).forEach(k=>{ HAND[k]=0; document.getElementById('h'+k).textContent='0'; });
+  await saveLogs(); renderEaten(); toast('Añadido al día');
+});
+
+/* ---------- contador del día ---------- */
+function barRow(lbl, val, target, color){
+  const p = target? val/target*100 : 0;
+  const w = Math.min(100, p);
+  const over = p>100 ? Math.min(40,(p-100)) : 0;
+  return `<div class="barrow"><div class="barhd"><span class="lb">${lbl}</span>
+    <span>${Math.round(val)} / ${target} · ${Math.round(p)} %</span></div>
+    <div class="bartrack"><i style="width:${w}%;background:${p>110?'var(--p-red)':color}"></i>${over?`<div class="over" style="width:${over}%"></div>`:''}</div></div>`;
+}
+function renderEaten(){
+  const T = todayTargets();
+  const d = todayISO();
+  const e = (LOGS[d] && LOGS[d].eaten) ? LOGS[d].eaten : {kcal:0,p:0,c:0,f:0,items:[]};
+  document.getElementById('fotoDayTag').textContent = T.label + ' · ' + T.kcal + ' kcal';
+  document.getElementById('eatenCount').textContent = e.items.length + (e.items.length===1?' plato':' platos');
+  document.getElementById('eatenBars').innerHTML =
+    barRow('Calorías', e.kcal, T.kcal, 'var(--p-yellow)') +
+    barRow('Proteína', e.p, T.p, 'var(--p-blue)') +
+    barRow('Carbohidrato', e.c, T.c, 'var(--p-green)') +
+    barRow('Grasa', e.f, T.f, '#C77DD8') +
+    (e.items.length? `<div style="margin-top:14px">${e.items.map(i=>`<div class="foodline">· ${i.t} <span class="mono" style="color:var(--smoke)">${i.kcal} kcal</span></div>`).join('')}</div>`:'');
+
+  const v = document.getElementById('eatenVerdict');
+  if(!e.items.length){ v.textContent='Aún no has añadido nada. Analiza un plato o usa la estimación con la mano de abajo.'; return; }
+  const restK = T.kcal - e.kcal, restP = T.p - e.p;
+  if(e.kcal > T.kcal*1.12) v.innerHTML = `Vas <b style="color:var(--p-red)">${Math.round(e.kcal-T.kcal)} kcal por encima</b> del objetivo de hoy. No lo compenses saltándote comidas mañana: sigue el plan tal cual y en la media semanal casi no se nota. Un día no rompe nada; dos seguidos sí.`;
+  else if(restK < 250 && restP > 40) v.innerHTML = `Te quedan solo ${Math.round(restK)} kcal pero aún te faltan <b style="color:var(--p-blue)">${Math.round(restP)} g de proteína</b>. Cierra el día con algo casi puro en proteína: 200 g de queso batido 0 %, pavo en lonchas o un batido con agua.`;
+  else v.innerHTML = `Te quedan <b style="color:var(--p-yellow)">${Math.round(restK)} kcal</b> y <b>${Math.round(restP)} g de proteína</b> para el resto del día. Reparte eso entre las comidas que te falten.`;
+}
+document.getElementById('btnUndo').addEventListener('click', async ()=>{
+  const e = eatenToday(); const last = e.items.pop();
+  if(!last){ toast('No hay nada que quitar'); return; }
+  e.kcal-=last.kcal; e.p-=last.p; e.c-=last.c; e.f-=last.f;
+  await saveLogs(); renderEaten(); toast('Quitado');
+});
+document.getElementById('btnClearDay').addEventListener('click', async ()=>{
+  if(!confirm('Se borran los platos y las fotos de hoy. ¿Seguro?')) return;
+  const d = todayISO();
+  if(LOGS[d]) LOGS[d].eaten = {kcal:0,p:0,c:0,f:0,items:[]};
+  PHOTOS[d] = [];
+  await saveLogs(); await savePhotos(d);
+  renderEaten(); renderGallery(); toast('Día vaciado');
+});
+
+/* ---------- autoguardado del chequeo diario ---------- */
+let autoT = null;
+function autosaveCheckin(){
+  if(!USER_ACTED) return;
+  clearTimeout(autoT);
+  autoT = setTimeout(async ()=>{
+    const d = todayISO();
+    if(!LOGS[d]) LOGS[d] = {train:'completo', eaten:{kcal:0,p:0,c:0,f:0,items:[]}};
+    LOGS[d].sleep = +document.getElementById('qSleepH').value;
+    LOGS[d].rec = +document.getElementById('scoreNum').textContent.replace(',','.') || null;
+    LOGS[d].knee = +document.getElementById('qKnee').value;
+    const hr = document.getElementById('qHR').value;
+    if(hr) LOGS[d].hr = +hr;
+    await saveLogs(true);
+    setStatus('Chequeo de hoy guardado automaticamente · '+Object.keys(LOGS).length+' dias', true);
+    renderHistory();
+  }, 1200);
+}
+['qSleepH','qSleepQ','qEnergy','qSore','qStress','qKnee','qHR'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', ()=>{ USER_ACTED = true; autosaveCheckin(); });
+});
+document.getElementById('qRest').addEventListener('change', ()=>{ USER_ACTED = true; autosaveCheckin(); });
+
+/* ---------- copia de seguridad ---------- */
+function renderDiag(){
+  const box = document.getElementById('diagBox');
+  const tag = document.getElementById('diagTag');
+  if(!box) return;
+  const has = n => BACKENDS.includes(n);
+  const row = (nom, ok, det) => `<div style="display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line)">
+      <span style="color:${ok?'var(--p-green)':'var(--p-red)'};font-weight:700;font-size:15px;line-height:1.2">${ok?'✓':'✗'}</span>
+      <div><div style="color:var(--chalk);font-size:13px">${nom}</div>
+      <div class="mono" style="color:var(--smoke);font-size:11px;margin-top:2px">${det}</div></div>
+    </div>`;
+
+  let survived;
+  if(!LAST_SESSION) survived = row('¿Sobrevivió la sesión anterior?', false, 'Primera vez que se abre, o no quedó nada guardado de antes');
+  else {
+    const mins = Math.round((Date.now() - LAST_SESSION.t)/60000);
+    const txt = mins < 60 ? mins+' min' : (mins < 1440 ? Math.round(mins/60)+' h' : Math.round(mins/1440)+' días');
+    survived = row('¿Sobrevivió la sesión anterior?', true, 'Sí. Última vez que se guardó algo: hace '+txt);
+  }
+
+  box.innerHTML =
+    row('Memoria de la ventana de Claude', has('claude'), has('claude') ? 'Disponible ahora mismo' : 'No disponible aquí') +
+    row('Memoria del navegador', has('local'), has('local') ? 'Disponible' : 'Bloqueada en este entorno') +
+    row('Base de datos del dispositivo', has('idb'), has('idb') ? 'Disponible' : 'Bloqueada en este entorno') +
+    survived +
+    row('Historial cargado ahora', Object.keys(LOGS).length > 0, Object.keys(LOGS).length + ' días · ' + (PHOTO_DAYS||[]).length + ' días con fotos');
+
+  if(tag){
+    tag.textContent = BACKENDS.length ? BACKENDS.length + ' de 3 activas' : 'Sin memoria';
+    tag.className = 'tag ' + (BACKENDS.length ? 'green' : 'red');
+  }
+}
+
+function showStorageWarning(on){
+  const w = document.getElementById('storageWarn');
+  if(w) w.style.display = on ? 'block' : 'none';
+}
+
+/* recoge TODO: dias, fotos de todos los dias e indice */
+async function fullDump(){
+  const fotos = {};
+  for(const d of PHOTO_DAYS){
+    if(PHOTOS[d]) { fotos[d] = PHOTOS[d]; continue; }
+    try{ const r = await DB.get(photoKey(d)); if(r) fotos[d] = JSON.parse(r); }catch(e){}
+  }
+  Object.keys(PHOTOS).forEach(d=>{ if((PHOTOS[d]||[]).length) fotos[d] = PHOTOS[d]; });
+  return JSON.stringify({ v:4, app:'plan8773', fecha:todayISO(), start:START_DATE.toISOString().slice(0,10), logs:LOGS, fotos });
+}
+
+async function applyDump(p){
+  if(!p || !p.logs) throw new Error('formato');
+  let added = 0;
+  Object.keys(p.logs).forEach(d=>{ if(!LOGS[d]){ LOGS[d] = p.logs[d]; added++; } });
+  if(p.start){ const [y,m,dd] = p.start.split('-').map(Number); START_DATE = new Date(y, m-1, dd); }
+  let fotos = 0;
+  if(p.fotos){
+    for(const d of Object.keys(p.fotos)){
+      const arr = p.fotos[d] || [];
+      if(!arr.length) continue;
+      PHOTOS[d] = arr; fotos += arr.length;
+      await DB.set(photoKey(d), JSON.stringify(arr));
+      if(!PHOTO_DAYS.includes(d)) PHOTO_DAYS.push(d);
+    }
+    await savePhotoIndex();
+  }
+  await saveLogs(true);
+  renderHistory(); renderChart(); renderWeekSummary(); renderRail(); renderEaten(); renderGallery();
+  return { added, fotos };
+}
+
+document.getElementById('btnDiag').addEventListener('click', async ()=>{
+  INIT_DONE = null;
+  await DB.init();
+  renderDiag();
+  setStatus('Comprobado · guardando en: ' + DB.label(), BACKENDS.length > 0);
+  showStorageWarning(BACKENDS.length === 0);
+  toast(BACKENDS.length ? 'Memoria activa: ' + DB.label() : 'Este entorno no guarda nada');
+});
+
+async function downloadBackup(silent){
+  try{
+    const dump = await fullDump();
+    const blob = new Blob([dump], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'copia-87-73-' + todayISO() + '.json';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1200);
+    if(!silent) toast('Archivo descargado. Guárdalo en un sitio seguro');
+    return true;
+  }catch(e){ toast('No se pudo generar el archivo'); return false; }
+}
+document.getElementById('btnDownload').addEventListener('click', ()=>downloadBackup(false));
+
+document.getElementById('btnDownTop').addEventListener('click', ()=>downloadBackup(false));
+
+function wireFileInput(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.addEventListener('change', (ev)=>{
+    const f = ev.target.files && ev.target.files[0];
+    if(!f) return;
+    const rd = new FileReader();
+    rd.onload = async ()=>{
+      try{
+        const r = await applyDump(JSON.parse(rd.result));
+        toast('Recuperados ' + r.added + ' días y ' + r.fotos + ' fotos');
+        setStatus('Restaurado desde archivo · ' + Object.keys(LOGS).length + ' dias', true);
+        document.getElementById('restoreHint').style.display = 'none';
+        renderDiag();
+      }catch(e){ toast('Ese archivo no es una copia válida'); }
+      ev.target.value = '';
+    };
+    rd.readAsText(f);
+  });
+}
+wireFileInput('fileInTop');
+wireFileInput('fileInTop2');
+
+document.getElementById('fileIn').addEventListener('change', (ev)=>{
+  const f = ev.target.files && ev.target.files[0];
+  if(!f) return;
+  const rd = new FileReader();
+  rd.onload = async ()=>{
+    try{
+      const r = await applyDump(JSON.parse(rd.result));
+      toast('Recuperados ' + r.added + ' días y ' + r.fotos + ' fotos');
+      setStatus('Restaurado desde archivo · ' + Object.keys(LOGS).length + ' dias', true);
+    }catch(e){ toast('Ese archivo no es una copia válida'); }
+    ev.target.value = '';
+  };
+  rd.readAsText(f);
+});
+
+document.getElementById('btnBackup').addEventListener('click', async ()=>{
+  const dump = await fullDump();
+  try{ await navigator.clipboard.writeText(dump); toast('Copia de seguridad copiada'); }
+  catch(e){
+    const ta = document.getElementById('restoreTxt');
+    document.getElementById('restoreBox').style.display = 'block';
+    ta.value = dump; ta.select();
+    toast('Copia manualmente el texto de abajo');
+  }
+});
+document.getElementById('btnRestoreOpen').addEventListener('click', ()=>{
+  const b = document.getElementById('restoreBox');
+  b.style.display = b.style.display==='none' ? 'block' : 'none';
+});
+document.getElementById('btnRestore').addEventListener('click', async ()=>{
+  const txt = document.getElementById('restoreTxt').value.trim();
+  if(!txt){ toast('Pega la copia primero'); return; }
+  try{
+    const r = await applyDump(JSON.parse(txt));
+    toast('Recuperados ' + r.added + ' días y ' + r.fotos + ' fotos');
+    document.getElementById('restoreBox').style.display='none';
+  }catch(e){ toast('Esa copia no tiene el formato correcto'); }
+});
+
+/* ---------- init ---------- */
+renderToday();
+selWeek = weekLetter(new Date());
+renderWeek();
+selDiet = dietOf(SPLIT[weekLetter(new Date())][new Date().getDay()]);
+renderDiet();
+loadLogs().then(computeRecovery);
+</script>
+</body>
+</html>
